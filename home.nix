@@ -15,7 +15,7 @@
 
   imports = [
   	./modules/packages.nix
-	./modules/vim.nix
+	./modules/nvim.nix
 	./modules/waybar.nix
 	./modules/labwc.nix
 	./modules/mako.nix

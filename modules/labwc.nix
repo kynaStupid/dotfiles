@@ -1,5 +1,6 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.file.".config/labwc".source = ./config/labwc;
+  # programs.labwc.enable = true;
+  home.file.".config/labwc".source = ../config/labwc;
 }

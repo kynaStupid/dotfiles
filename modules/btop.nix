@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 
 {
-  programs.btop.enable = true;
-  home.file.".config/btop".source = ./config/btop;
+  programs.btop = {
+    enable = true;
+	settings.update_ms = 1000;
+  };
 }
