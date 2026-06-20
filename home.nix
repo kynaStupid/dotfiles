@@ -29,6 +29,8 @@
   home.file.".config/nvim".source = ./config/nvim;
   
   home.file.".config/waybar".source = ./config/waybar;
+
+  home.file.".config/mako".source = ./config/mako;
   
   home.file.".config/labwc".source = ./config/labwc;
 }
