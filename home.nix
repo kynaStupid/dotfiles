@@ -30,11 +30,14 @@ in
   
   programs.neovim = {
     enable = true;
+
+	viAlias = true;
+	vimAlias = true;
   };
   home.file.".config/nvim".source = ./config/nvim;
   
   home.file.".config/waybar".source = ./config/waybar;
-  home.file.".config/waybar/mocha.css".source =
+  home.file."dotfiles/config/waybar/mocha.css".source =
     "${catppuccin-waybar}/themes/mocha.css";
 
   home.file.".config/labwc".source = ./config/labwc;
