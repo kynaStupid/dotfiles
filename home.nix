@@ -1,13 +1,5 @@
 { config, pkgs, lib, ... }:
 
-let
-  catppuccin-waybar = pkgs.fetchFromGitHub {
-    owner = "catppuccin";
-    repo = "waybar";
-    rev = "main";
-    hash = "sha256-za0y6hcN2rvN6Xjf31xLRe4PP0YyHu2i454ZPjr+lWA";
-  };
-in
 {
   home.username = "sheb";
   home.homeDirectory = "/home/sheb";
@@ -37,8 +29,6 @@ in
   home.file.".config/nvim".source = ./config/nvim;
   
   home.file.".config/waybar".source = ./config/waybar;
-  home.file."dotfiles/config/waybar/mocha.css".source =
-    "${catppuccin-waybar}/themes/mocha.css";
-
+  
   home.file.".config/labwc".source = ./config/labwc;
 }
