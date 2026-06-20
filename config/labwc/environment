@@ -34,9 +34,8 @@
 ## `find /usr/share/icons/ -type d -name "cursors"`
 ##
 
-# XCURSOR_THEME=breeze_cursors
-# XCURSOR_THEME=capitaine-cursors
-# XCURSOR_SIZE=24
+XCURSOR_THEME=catppuccin-mocha-mauve-cursors
+XCURSOR_SIZE=24
 
 ##
 ## Disable hardware cursors. Most users would not want to do this, but if you
@@ -65,7 +64,8 @@
 ## then uncomment and adjust.
 ##
 
-# XDG_CURRENT_DESKTOP=labwc:wlroots
+XDG_CURRENT_DESKTOP=labwc:wlroots
+XDG_SESSION_DESKTOP=labwc
 
 ##
 ## This causes a virtual output to be created automatically whenever there

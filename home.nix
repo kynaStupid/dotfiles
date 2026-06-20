@@ -6,31 +6,20 @@
   home.stateVersion = "26.05";
   
   programs.home-manager.enable = true;
-
-  home.packages = with pkgs; [
-    yazi
-    fastfetch
-  ];
-
+  
   catppuccin = {
     enable = true;
 	autoEnable = true;
 	flavor = "mocha";
   };
 
-  programs.btop.enable = true;
-  
-  programs.neovim = {
-    enable = true;
-
-	viAlias = true;
-	vimAlias = true;
-  };
-  home.file.".config/nvim".source = ./config/nvim;
-  
-  home.file.".config/waybar".source = ./config/waybar;
-
-  home.file.".config/mako".source = ./config/mako;
-  
-  home.file.".config/labwc".source = ./config/labwc;
+  imports = [
+  	./modules/packages.nix
+	./modules/vim.nix
+	./modules/waybar.nix
+	./modules/labwc.nix
+	./modules/mako.nix
+	./modules/btop.nix
+	./modules/yazi.nix
+  ];
 }

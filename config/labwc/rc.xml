@@ -11,11 +11,6 @@
     <font name="sans" size="10" />
   </theme>
 
-  <output name="HDMI-A-1">
-    <mode>1920x1080</mode>
-    <refresh>74989998</refresh>
-  </output>
-
   <keyboard>
     <default />
     <!-- Use a different terminal emulator -->

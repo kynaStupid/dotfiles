@@ -5,8 +5,8 @@
 # services declaring WantedBy=graphical-session.target (panels, portals,
 # notification daemons, etc.) start in sync with the labwc session. Enable
 # individual services with: systemctl --user enable <unit>
-#
-# systemctl --user --no-block start labwc-session.target
+
+systemctl --user --no-block start labwc-session.target
 
 # Set background color.
 # swaybg -c '#113344' >/dev/null 2>&1 &
@@ -19,6 +19,7 @@
 #     output eDP-1 position 0,0
 #   }
 # kanshi >/dev/null 2>&1 &
+wlr-randr --output HDMI-A-1 --mode 1920x1080@74.989998Hz
 
 # Launch a panel such as yambar or waybar.
 waybar >/dev/null 2>&1 &
@@ -45,6 +46,3 @@ swayidle -w \
 	timeout 600 'wlopm --off \*' \
 	resume 'wlopm --on \*' \
 	before-sleep 'swaylock -f -c 000000' >/dev/null 2>&1 &
-
-/usr/lib/xdg-desktop-portal &
-/usr/lib/xdg-desktop-portal-wlr &
