@@ -1,102 +1,150 @@
 @import "mocha.css";
 
 * {
-  font-family: FantasqueSansMono Nerd Font;
-  font-size: 17px;
+  font-size: 16px;
   min-height: 0;
-}
-
-#waybar {
-  background: transparent;
-  color: @text;
-  margin: 5px 5px;
-}
-
-#workspaces {
   border-radius: 1rem;
-  margin: 5px;
-  background-color: @surface0;
-  margin-left: 1rem;
+  padding: 0.1rem;
+}
+
+window#waybar {
+  background: @base;
+  color: @text;
+}
+
+tooltip {
+  background: @mantle;
+}
+tooltip label {
+  color: @text;
 }
 
 #workspaces button {
-  color: @lavender;
-  border-radius: 1rem;
-  padding: 0.4rem;
+  padding: 0 5px;
+  background: transparent;
+  color: @text;
+  border-bottom: 3px solid transparent;
 }
 
-#workspaces button.active {
-  color: @sky;
-  border-radius: 1rem;
+#workspaces button.focused {
+  background: @surface0;
+  border-bottom: 3px solid @blue;
 }
 
-#workspaces button:hover {
-  color: @sapphire;
-  border-radius: 1rem;
+#mode,
+#clock,
+#battery {
+  padding: 0 10px;
 }
 
-#custom-music,
-#tray,
-#backlight,
+#mode {
+  background: @surface0;
+  border-bottom: 3px solid @blue;
+}
+
 #clock,
 #battery,
+#cpu,
+#memory,
+#disk,
+#temperature,
+#backlight,
+#network,
 #pulseaudio,
-#custom-lock,
-#custom-power {
-  background-color: @surface0;
-  padding: 0.5rem 1rem;
-  margin: 5px 0;
+#wireplumber,
+#custom-media,
+#tray,
+#mode,
+#idle_inhibitor,
+#scratchpad,
+#mpd {
+  margin: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: @text;
+}
+
+.modules-left > widget:first-child > #workspaces {
+  margin-left: 0;
+}
+
+.modules-right > widget:last-child > #workspaces {
+  margin-right: 0;
 }
 
 #clock {
-  color: @blue;
-  border-radius: 0px 1rem 1rem 0px;
-  margin-right: 1rem;
+  font-size: 14px;
 }
 
-#battery {
-  color: @green;
-}
-
-#battery.charging {
-  color: @green;
-}
-
-#battery.warning:not(.charging) {
-  color: @red;
-}
-
-#backlight {
+#battery icon {
   color: @yellow;
 }
 
-#backlight, #battery {
-    border-radius: 0;
+#battery.charging,
+#battery.plugged {
+  color: @base;
+  background-color: @green;
 }
 
-#pulseaudio {
-  color: @maroon;
-  border-radius: 1rem 0px 0px 1rem;
-  margin-left: 1rem;
+@keyframes blink {
+  to {
+    background-color: @text;
+    color: @base;
+  }
 }
 
-#custom-music {
-  color: @mauve;
-  border-radius: 1rem;
+#battery.warning:not(.charging) {
+  background-color: @yellow;
+  color: @base;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
-#custom-lock {
-    border-radius: 1rem 0px 0px 1rem;
-    color: @lavender;
+#battery.critical:not(.charging) {
+  background-color: @yellow;
+  color: @base;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
-#custom-power {
-    margin-right: 1rem;
-    border-radius: 0px 1rem 1rem 0px;
-    color: @red;
+label:focus {
+  background-color: @surface0;
 }
 
-#tray {
-  margin-right: 1rem;
-  border-radius: 1rem;
+#network.disconnected {
+  background-color: @red;
+}
+
+#temperature.critical {
+  background-color: @red;
+  color: @base;
+}
+
+#idle_inhibitor.activated {
+  background-color: @subtext;
+  color: @base;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background-color: @red;
+}
+
+#custom-os_button {
+  font-size: 32px;
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+#custom-os_button:hover {
+  background: @text;
+  color: @base;
 }
