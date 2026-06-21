@@ -9,22 +9,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixgl.url = "github:nix-community/nixGL";
+    nixcord.url = "github:FlameFlag/nixcord";
   };
 
-  outputs = { nixpkgs, home-manager, catppuccin, nixgl, ... }: {
+  outputs = { nixpkgs, home-manager, catppuccin, nixcord, ... }: {
     homeConfigurations.sheb =
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
-          system = "x86_64-linux";
-        };
+	      system = "x86_64-linux";
+          config.allowUnfree = true;
+		};
+
+		extraSpecialArgs = { inherit nixcord; };
 
         modules = [
 		  ./home.nix
 		  catppuccin.homeModules.catppuccin
 		];
-
-        extraSpecialArgs = { inherit nixgl; };
       };
   };
 }

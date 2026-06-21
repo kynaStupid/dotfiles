@@ -1,11 +1,9 @@
-{ config, pkgs, lib, nixgl, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   programs.alacritty = {
     enable = true;
-    package = pkgs.writeShellScriptBin "alacritty" ''
-      exec ${nixgl.packages.${pkgs.system}.nixGLIntel}/bin/nixGLIntel ${pkgs.alacritty}/bin/alacritty "$@"
-    '';
+    package = null;
 	settings = {
 	  window = {
         decorations = "None";
