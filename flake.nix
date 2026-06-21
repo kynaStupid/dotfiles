@@ -8,9 +8,11 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixgl.url = "github:nix-community/nixGL";
   };
 
-  outputs = { nixpkgs, home-manager, catppuccin, ... }: {
+  outputs = { nixpkgs, home-manager, catppuccin, nixgl, ... }: {
     homeConfigurations.sheb =
       home-manager.lib.homeManagerConfiguration {
         pkgs = import nixpkgs {
@@ -21,6 +23,8 @@
 		  ./home.nix
 		  catppuccin.homeModules.catppuccin
 		];
+
+        extraSpecialArgs = { inherit nixgl; };
       };
   };
 }

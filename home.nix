@@ -16,11 +16,12 @@
 
   imports = [
   	./modules/packages.nix
-	./modules/nvim.nix
-	./modules/waybar.nix
 	./modules/labwc.nix
 	./modules/mako.nix
+	./modules/waybar.nix
+	./modules/alacritty.nix
 	./modules/btop.nix
+	./modules/nvim.nix
 	./modules/yazi.nix
   ];
 }

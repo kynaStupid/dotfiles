@@ -1,8 +1,11 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, nixgl, ... }:
 
 {
   programs.alacritty = {
     enable = true;
+    package = pkgs.writeShellScriptBin "alacritty" ''
+      exec ${nixgl.packages.${pkgs.system}.nixGLIntel}/bin/nixGLIntel ${pkgs.alacritty}/bin/alacritty "$@"
+    '';
 	settings = {
 	  window = {
         decorations = "None";
@@ -28,6 +31,6 @@
           action = "Paste";
         }
       ];
-	}
+	};
   };
 }
