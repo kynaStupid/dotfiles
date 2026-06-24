@@ -25,6 +25,10 @@
 	./modules/yazi.nix
 	./modules/nvim.nix
 	./modules/dolphin.nix
+	./modules/vlc.nix
+	./modules/flameshot.nix
+	./modules/obs.nix
 	./modules/dorion.nix
+	./modules/libreoffice.nix
   ];
 }
