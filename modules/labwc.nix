@@ -1,6 +1,7 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, isNixOS, ... }:
 
 {
-  # programs.labwc.enable = true;
+  wayland.windowManager.labwc.enable = isNixOS;
+
   home.file.".config/labwc".source = ../config/labwc;
 }

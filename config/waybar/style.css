@@ -4,16 +4,17 @@
   font-size: 14px;
   min-height: 0;
   border-radius: 1rem;
-  padding: 0.1rem;
+  padding: 0px;
 }
 
 window#waybar {
   background: @base;
+  border-radius: 0px;
   color: @text;
 }
 
 tooltip {
-  background: @mantle;
+  background: @crust;
 }
 tooltip label {
   color: @text;
@@ -145,6 +146,6 @@ label:focus {
   transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 #custom-os_button:hover {
-  background: @text;
+  background: @surface0;
   color: @base;
 }

@@ -8,24 +8,37 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nixcord.url = "github:FlameFlag/nixcord";
   };
 
-  outputs = { nixpkgs, home-manager, catppuccin, nixcord, ... }: {
-    homeConfigurations.sheb =
-      home-manager.lib.homeManagerConfiguration {
-        pkgs = import nixpkgs {
-	      system = "x86_64-linux";
-          config.allowUnfree = true;
-		};
+  outputs = { nixpkgs, home-manager, catppuccin, ... }: {
+    homeConfigurations = {
+	  arch =
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+	        system = "x86_64-linux";
+		  };
 
-		extraSpecialArgs = { inherit nixcord; };
+		  extraSpecialArgs = { isNixOS = false; };
 
-        modules = [
-		  ./home.nix
-		  catppuccin.homeModules.catppuccin
-		];
-      };
+          modules = [
+		    ./home.nix
+		    catppuccin.homeModules.catppuccin
+		  ];
+        };
+
+	  nixos =
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+	        system = "x86_64-linux";
+		  };
+
+		  extraSpecialArgs = { isNixOS = true; };
+
+          modules = [
+		    ./home.nix
+		    catppuccin.homeModules.catppuccin
+		  ];
+        };
+	};
   };
 }

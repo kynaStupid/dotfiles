@@ -1,9 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, isNixOS, ... }:
 
 {
   programs.alacritty = {
     enable = true;
-    package = null;
+    package = if isNixOS then pkgs.alacritty else null;
 	settings = {
 	  window = {
         decorations = "None";

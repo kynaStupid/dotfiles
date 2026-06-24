@@ -17,14 +17,14 @@
   imports = [
   	./modules/packages.nix
 	./modules/labwc.nix
-	./modules/mangowm.nix
+	./modules/mango.nix
 	./modules/mako.nix
 	./modules/waybar.nix
 	./modules/alacritty.nix
 	./modules/btop.nix
-	./modules/nvim.nix
 	./modules/yazi.nix
+	./modules/nvim.nix
 	./modules/dolphin.nix
-	./modules/discord.nix
+	./modules/dorion.nix
   ];
 }

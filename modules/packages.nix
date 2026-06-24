@@ -1,9 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, isNixOS, ... }:
 
 {
   home.packages = with pkgs; [
     fastfetch
-	github-desktop
-	karere
-  ];
+	vlc
+  ]
+  ++ (if isNixOS then [
+    github-desktop
+  ] else []);
 }

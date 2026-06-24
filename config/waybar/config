@@ -211,9 +211,12 @@
   },
   {
     "layer": "top",
-    "position": "bottom",
-    "height": 41,
+    "position": "top",
+	"exclusive": false,
+	"passthrough": false,
+    "height": 32,
     "width": 2,
+    "margin-top": -24,
     "modules-left": [
       "custom/os_button"
     ],
@@ -221,8 +224,6 @@
       "sway/mode",
       "wlr/taskbar"
     ],
-    "margin": "4",
-    "spacing": "5",
     "sway/window": {
       "max-length": 50
     },
@@ -233,8 +234,8 @@
     },
     "wlr/taskbar": {
       "format": "{icon}",
-      "icon-size": 36,
-      "spacing": 3,
+      "icon-size": 32,
+      "spacing": 2,
       "on-click-middle": "close",
       "tooltip-format": "{title}",
       "ignore-list": [],
