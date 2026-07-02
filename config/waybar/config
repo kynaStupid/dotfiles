@@ -1,5 +1,6 @@
 [
   {
+	"name": "statusbar",
     "layer": "top",
     "position": "top",
     "height": 24,
@@ -210,11 +211,12 @@
     }
   },
   {
+	"name": "taskbar",
     "layer": "top",
     "position": "top",
 	"exclusive": false,
 	"passthrough": false,
-    "height": 32,
+    "height": 40,
     "width": 2,
     "margin-top": -24,
     "modules-left": [
