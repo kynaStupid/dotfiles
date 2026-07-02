@@ -2,9 +2,9 @@
 
 {
   home.packages = with pkgs; []
-    ++ (if isNixOS then [
-	  dorion
-	] else []);
+  ++ (if isNixOS then [
+    dorion
+  ] else []);
 
   xdg.configFile."dorion/config.json".text = builtins.toJSON {
     theme = "none";

@@ -2,9 +2,9 @@
 
 {
   home.packages = with pkgs; []
-    ++ (if isNixOS then [
-	  vlc
-	] else []);
+  ++ (if isNixOS then [
+    vlc
+  ] else []);
   
   home.file.".config/vlc".source = ../config/vlc;
 }

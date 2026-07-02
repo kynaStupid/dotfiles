@@ -3,8 +3,8 @@
 {
   home.packages = with pkgs; []
   ++ (if isNixOS then [
-    flameshot
+    quickshell
   ] else []);
-  
-  home.file.".config/flameshot".source = ../config/flameshot;
+
+  home.file.".config/quickshell".source = ../config/quickshell;
 }

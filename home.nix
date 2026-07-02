@@ -18,8 +18,9 @@
   	./modules/packages.nix
 	./modules/labwc.nix
 	./modules/mango.nix
-	./modules/mako.nix
+	./modules/quickshell.nix
 	./modules/waybar.nix
+	./modules/mako.nix
 	./modules/alacritty.nix
 	./modules/btop.nix
 	./modules/yazi.nix

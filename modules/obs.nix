@@ -2,9 +2,9 @@
 
 {
   home.packages = with pkgs; []
-    ++ (if isNixOS then [
-	  obs-studio
-	] else []);
+  ++ (if isNixOS then [
+    obs-studio
+  ] else []);
 
   home.file.".config/obs-studio".source = ../config/obs-studio;
 }
