@@ -6,6 +6,5 @@
     thunar-volman
     thunar-archive-plugin
     tumbler
-    gvfs
   ];
 }
