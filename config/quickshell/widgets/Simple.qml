@@ -7,12 +7,39 @@ import "../services"
 Item {
 	id: root
 
+	component TextButton: Text {
+		id: button
+		property string label: ""
+		property string onClickCommand: ""
+
+		signal clicked()
+
+		text: label
+		color: Mocha.text
+		font.pointSize: Globals.barTextSize
+
+		MouseArea {
+			anchors.fill: parent
+			cursorShape: button.onClickCommand !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
+			onClicked: {
+				if (button.onClickCommand !== "")
+					buttonProc.running = true
+				button.clicked()
+			}
+		}
+
+		Process {
+			id: buttonProc
+			command: ["sh", "-c", button.onClickCommand]
+		}
+	}
+
 	component Launcher: Text {
 		property string command: "wofi --show drun"
 
 		text: "🔍"
 		color: Mocha.text
-		font.pixelSize: Globals.barTextSize
+		font.pointSize: Globals.barTextSize
 
 		MouseArea {
 			anchors.fill: parent
@@ -31,7 +58,7 @@ Item {
 		property string format: "dddd MMMM dd hh:mm AP"
 
 		color: Mocha.text
-		font.pixelSize: Globals.barTextSize
+		font.pointSize: Globals.barTextSize
 		text: Qt.formatDateTime(new Date(), format)
 
 		Timer {
@@ -39,33 +66,6 @@ Item {
 			running: true
 			repeat: true
 			onTriggered: parent.text = Qt.formatDateTime(new Date(), parent.format)
-		}
-	}
-
-	component TextButton: Text {
-		id: button
-		property string label: ""
-		property string onClickCommand: ""
-
-		signal clicked()
-
-		text: label
-		color: Mocha.text
-		font.pixelSize: Globals.barTextSize
-
-		MouseArea {
-			anchors.fill: parent
-			cursorShape: button.onClickCommand !== "" ? Qt.PointingHandCursor : Qt.ArrowCursor
-			onClicked: {
-				if (button.onClickCommand !== "")
-					buttonProc.running = true
-				button.clicked()
-			}
-		}
-
-		Process {
-			id: buttonProc
-			command: ["sh", "-c", button.onClickCommand]
 		}
 	}
 }

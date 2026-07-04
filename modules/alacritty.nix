@@ -15,6 +15,11 @@
         };
       };
 
+	  font = {
+	  	normal.family = "Maple Mono NF CN";
+		size = 12;
+	  };
+
 	  selection.save_to_clipboard = true;
 
       keyboard.bindings = [

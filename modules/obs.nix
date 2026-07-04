@@ -6,5 +6,5 @@
     obs-studio
   ] else []);
 
-  home.file.".config/obs-studio".source = ../config/obs-studio;
+  #home.file.".config/obs-studio".source = ../config/obs-studio;
 }

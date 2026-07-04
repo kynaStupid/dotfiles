@@ -22,10 +22,9 @@ PanelWindow {
 	color: "transparent"
 
 	mask: Region {
-		item: statusbar
-		Region {
-			item: taskbar
-		}
+		item: statusBar
+		Region { item: taskBar }
+		Region { item: mprisExpanded }
 	}
 
 	Item {
@@ -38,13 +37,13 @@ PanelWindow {
 			root: root
 
 			geometry: ([]
-				.concat(statusbar.borderGeometry)
-				.concat(taskbar.borderGeometry)
+				.concat(statusBar.borderGeometry)
+				.concat(taskBar.borderGeometry)
 			)
 		}
 
 		Rectangle {
-			id: statusbar
+			id: statusBar
 			anchors.top: parent.top
 			anchors.left: parent.left
 			anchors.right: parent.right
@@ -60,27 +59,37 @@ PanelWindow {
 			Behavior on opacity { NumberAnimation { duration: Globals.animFocusDuration } }
 
 			readonly property var borderGeometry: [
-				{ type: "rect", item: statusbar }
+				{ type: "rect", item: statusBar }
 			]
 
 			MouseArea {
 				anchors.fill: parent
 				hoverEnabled: true
-				onEntered: Globals.statusbarHovered = true
+				onEntered: Globals.statusBarHovered = true
 				onExited: {
-					Globals.statusbarHovered = false
-					Globals.updateTaskbarVisible()
+					Globals.statusBarHovered = false
+					Globals.updateWidgetsVisible()
 				}
 
 				MouseArea {
-					id: taskbarHotspot
+					id: taskBarHotspot
 					hoverEnabled: true
 					anchors.left: parent.left
 					anchors.top: parent.top
 					anchors.bottom: parent.bottom
 					width: Globals.barHeight
-					onEntered: Globals.taskbarVisible = true
+					onEntered: Globals.expandTaskBar()
 				}
+
+				/*MouseArea {
+					id: mprisWidgetHotspot
+					hoverEnabled: mprisCompact.visible
+					anchors.top: parent.top
+					anchors.bottom: parent.bottom
+					x: Globals.absoluteX(mprisCompact, statusBar) + mprisCompact.width - width
+					width: Globals.barHeight
+					onEntered: Globals.expandMprisWidget()
+				}*/
 			}
 
 			// left
@@ -91,6 +100,11 @@ PanelWindow {
 				spacing: Globals.barMargin
 
 				Status.TrayWidget { anchorWindow: bar }
+
+				MprisWidget.Compact {
+					id: mprisCompact
+					canVisible: !Globals.mprisWidgetVisible
+				}
 			}
 
 			// center
@@ -120,15 +134,15 @@ PanelWindow {
 		}
 
 		Rectangle {
-			id: taskbar
-			anchors.top: statusbar.bottom
+			id: taskBar
+			anchors.top: statusBar.bottom
 			anchors.left: parent.left
 
-			width: Globals.taskbarVisible?
-				Math.min(maxWidth, taskbarColumn.implicitWidth):
+			width: Globals.taskBarVisible?
+				Math.min(maxWidth, taskBarColumn.implicitWidth):
 				0
-			height: Globals.taskbarVisible?
-				Math.min(maxHeight, taskbarColumn.implicitHeight + Globals.barMargin*2):
+			height: Globals.taskBarVisible?
+				Math.min(maxHeight, taskBarColumn.implicitHeight + Globals.barMargin*2):
 				0
 			readonly property real maxWidth: 500
 			readonly property real maxHeight: 500
@@ -142,39 +156,39 @@ PanelWindow {
 			Behavior on opacity { NumberAnimation { duration: Globals.animFocusDuration } }
 
 			readonly property var borderGeometry: [
-				{ type: "rect", item: taskbar },
-				{ type: "invertedCorner", item: taskbarInvertedCornerLeft },
-				{ type: "invertedCorner", item: taskbarInvertedCornerRight }
+				{ type: "rect", item: taskBar },
+				{ type: "invertedCorner", item: taskBarInvertedCornerLeft },
+				{ type: "invertedCorner", item: taskBarInvertedCornerRight }
 			]
 
 			MouseArea {
 				anchors.fill: parent
 				hoverEnabled: true
-				onEntered: Globals.taskbarHovered = true
+				onEntered: Globals.taskBarHovered = true
 				onExited: {
-					Globals.taskbarHovered = false
-					Globals.updateTaskbarVisible()
+					Globals.taskBarHovered = false
+					Globals.updateWidgetsVisible()
 				}
 			}
 
 			Flickable {
 				anchors.fill: parent
 				//anchors.margins: Globals.barMargin
-				contentWidth: taskbarColumn.implicitWidth
-				contentHeight: taskbarColumn.implicitHeight
+				contentWidth: taskBarColumn.implicitWidth
+				contentHeight: taskBarColumn.implicitHeight
 				clip: true
 				boundsBehavior: Flickable.StopAtBounds
 
 				Column {
-					id: taskbarColumn
+					id: taskBarColumn
 					anchors.fill: parent
 					anchors.margins: Globals.barMargin
 					spacing: Globals.barMargin
 
 					readonly property real buttonWidth: {
 						let widest = 0
-						for (let i = 0; i < taskbarRepeater.count; i++) {
-							const item = taskbarRepeater.itemAt(i)
+						for (let i = 0; i < taskBarRepeater.count; i++) {
+							const item = taskBarRepeater.itemAt(i)
 							if (item)
 								widest = Math.max(widest, item.contentWidth)
 						}
@@ -182,7 +196,7 @@ PanelWindow {
 					}
 	
 					Repeater {
-						id: taskbarRepeater
+						id: taskBarRepeater
 						model: ToplevelManager.toplevels
 
 						delegate: Rectangle {
@@ -191,7 +205,7 @@ PanelWindow {
 							readonly property real contentWidth:
 								content.implicitWidth + Globals.barMargin * 2
 			
-							implicitWidth: taskbarColumn.buttonWidth
+							implicitWidth: taskBarColumn.buttonWidth
 							implicitHeight: Globals.barWidth
 							radius: Globals.barRadius
 							color: modelData.activated? Mocha.surface0: "transparent"
@@ -210,7 +224,7 @@ PanelWindow {
 								Text {
 									text: modelData.title || modelData.appId || "?"
 									color: Mocha.text
-									font.pixelSize: Globals.barTextSize
+									font.pointSize: Globals.barTextSize
 									elide: Text.ElideRight
 								}
 							}
@@ -233,23 +247,42 @@ PanelWindow {
 			}
 
 			InvertedCorner {
-				id: taskbarInvertedCornerLeft
+				id: taskBarInvertedCornerLeft
 				anchors.left: parent.left
-				anchors.top: taskbar.bottom
+				anchors.top: taskBar.bottom
 
-				radius: Math.min(taskbar.height - Globals.barRadius, Globals.barRadius)
+				radius: Math.min(taskBar.height - Globals.barRadius, Globals.barRadius)
 				color: Globals.barColor
 				corner: Qt.BottomRightCorner
 			}
 			InvertedCorner {
-				id: taskbarInvertedCornerRight
-				anchors.left: taskbar.right
-				anchors.top: taskbar.top
+				id: taskBarInvertedCornerRight
+				anchors.left: taskBar.right
+				anchors.top: taskBar.top
 
-				radius: Math.min(taskbar.height - Globals.barRadius, Globals.barRadius)
+				radius: Math.min(taskBar.height - Globals.barRadius, Globals.barRadius)
 				color: Globals.barColor
 				corner: Qt.BottomRightCorner
 			}
 		}
+
+		/*MprisWidget.Expanded {
+			id: mprisExpanded
+			anchors.top: statusBar.top
+			x: Globals.absoluteX(mprisCompact, root)
+
+			visible: Globals.mprisWidgetVisible || height > 0
+
+			Rectangle {
+				anchors.left: parent.left
+				anchors.right: parent.right
+				y: statusBar.height
+				height: parent.height - statusBar.height
+
+				bottomLeftRadius: Globals.barRadius
+				bottomRightRadius: Globals.barRadius
+				color: Globals.barColor
+			}
+		}*/
 	}
 }

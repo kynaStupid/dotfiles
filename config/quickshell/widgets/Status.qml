@@ -8,7 +8,7 @@ import "../services"
 Item {
 	component NetworkWidget: Text {
 		color: Mocha.text
-		font.pixelSize: Globals.barTextSize
+		font.pointSize: Globals.barTextSize
 		text: {
 			if (!Network.connected)
 				return "󰤭 Disconnected"
@@ -27,7 +27,7 @@ Item {
 
 	component VolumeWidget: Text {
 		color: Mocha.green
-		font.pixelSize: Globals.barTextSize
+		font.pointSize: Globals.barTextSize
 		text: {
 			if (Audio.muted)
 				return "󰝟 Muted"
@@ -49,7 +49,7 @@ Item {
 	component BatteryWidget: Text {
 		visible: Battery.present
 		color: Battery.percentage <= 15 && !Battery.charging? Mocha.red: Mocha.text
-		font.pixelSize: Globals.barTextSize
+		font.pointSize: Globals.barTextSize
 		text: {
 			const icon = Battery.charging ? "󰂄" : "󰁹"
 			let s = icon + " " + Battery.percentage + "%"
@@ -114,5 +114,9 @@ Item {
 				}
 			}
 		}
+	}
+
+	component MediaWidget: Item {
+
 	}
 }

@@ -25,7 +25,7 @@
 	./modules/btop.nix
 	./modules/yazi.nix
 	./modules/nvim.nix
-	./modules/dolphin.nix
+	./modules/thunar.nix
 	./modules/vlc.nix
 	./modules/flameshot.nix
 	./modules/obs.nix

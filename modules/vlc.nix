@@ -6,5 +6,5 @@
     vlc
   ] else []);
   
-  home.file.".config/vlc".source = ../config/vlc;
+  #home.file.".config/vlc".source = ../config/vlc;
 }

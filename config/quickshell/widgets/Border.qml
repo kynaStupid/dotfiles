@@ -11,25 +11,6 @@ Item {
 	property Item root: null
 
 	anchors.fill: parent
-
-	function absoluteX(item) {
-		let x = 0
-		let current = item
-		while (current !== root) {
-			x += current.x
-			current = current.parent
-		}
-		return x
-	}
-	function absoluteY(item) {
-		let y = 0
-		let current = item
-		while (current !== root) {
-			y += current.y
-			current = current.parent
-		}
-		return y
-	}
 	
 	Item {
 		id: innerUnion
@@ -72,7 +53,7 @@ Item {
 				property var geom: modelData
 
 				asynchronous: true
-				active: geom.item.width > 0 && geom.item.height > 0
+				//active: geom.item.width > 0 && geom.item.height > 0
 
       		  	sourceComponent: modelData.type === "rect"?
 					outerRectComponent:
@@ -85,8 +66,8 @@ Item {
 		id: innerRectComponent
 
 		Rectangle {
-			x: absoluteX(parent.geom.item)
-			y: absoluteY(parent.geom.item)
+			x: Globals.absoluteX(parent.geom.item, root)
+			y: Globals.absoluteY(parent.geom.item, root)
 			width: parent.geom.item.width
 			height: parent.geom.item.height
 
@@ -108,8 +89,8 @@ Item {
 			readonly property real _radius: _geom.item.radius
 			readonly property int _corner: _geom.item.corner
 
-			x: absoluteX(parent.geom.item)
-			y: absoluteY(parent.geom.item)
+			x: Globals.absoluteX(parent.geom.item, root)
+			y: Globals.absoluteY(parent.geom.item, root)
 			width: _radius
 			height: _radius
 
@@ -169,8 +150,10 @@ Item {
 		id: outerRectComponent
 
 		Rectangle {
-			x: absoluteX(parent.geom.item) - Globals.borderWidth
-			y: absoluteY(parent.geom.item) - Globals.borderWidth
+			visible: parent.geom.item.width > 0 && parent.geom.item.height > 0
+
+			x: Globals.absoluteX(parent.geom.item, root) - Globals.borderWidth
+			y: Globals.absoluteY(parent.geom.item, root) - Globals.borderWidth
 			width: parent.geom.item.width + Globals.borderWidth*2
 			height: parent.geom.item.height + Globals.borderWidth*2
 
@@ -189,8 +172,10 @@ Item {
 		id: outerInvertedCornerComponent
 
 		Rectangle {
-			x: absoluteX(parent.geom.item)
-			y: absoluteY(parent.geom.item)
+			visible: parent.geom.item.radius > 0
+
+			x: Globals.absoluteX(parent.geom.item, root)
+			y: Globals.absoluteY(parent.geom.item, root)
 			width: parent.geom.item.width
 			height: parent.geom.item.height
 
