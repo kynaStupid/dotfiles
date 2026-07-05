@@ -6,5 +6,6 @@
     vlc
   ] else []);
   
-  #home.file.".config/vlc".source = ../config/vlc;
+  xdg.configFile."vlc/vlcrc".source = ../config/vlc/vlcrc;
+  xdg.configFile."vlc/vlc-qt-interface.conf".source = ../config/vlc/vlc-qt-interface.conf;
 }

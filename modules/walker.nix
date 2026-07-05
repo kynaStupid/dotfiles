@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
 
 {
-  programs.walker.enable = true;
+  home.packages = with pkgs; [
+  	walker
+	elepant
+  ];
 }

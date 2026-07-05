@@ -6,7 +6,7 @@
     quickshell
   ] else []);
 
-  home.file.".config/quickshell".source =
+  xdg.configFile."quickshell".source =
   	config.lib.file.mkOutOfStoreSymlink
 	  "/home/sheb/dotfiles/config/quickshell";
 }

@@ -12,10 +12,13 @@
 	autoEnable = true;
 	flavor = "mocha";
 	accent = "mauve";
+	gtk.icon.enable = false;
   };
 
   imports = [
   	./modules/packages.nix
+	./modules/gtk.nix
+	./modules/qt.nix
 	./modules/labwc.nix
 	./modules/mango.nix
 	./modules/quickshell.nix

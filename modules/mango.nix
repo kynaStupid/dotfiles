@@ -1,5 +1,5 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.file.".config/mango".source = ../config/mango;
+  xdg.configFile."mango".source = ../config/mango;
 }

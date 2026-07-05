@@ -6,5 +6,5 @@
     libreoffice-bin
   ] else []);
   
-  home.file.".config/libreoffice/4/user/registrymodifications.xcu".source = ../config/libreoffice/registrymodifications.xcu;
+  xdg.configFile."libreoffice/4/user/registrymodifications.xcu".source = ../config/libreoffice/registrymodifications.xcu;
 }

@@ -3,5 +3,5 @@
 {
   wayland.windowManager.labwc.enable = isNixOS;
 
-  home.file.".config/labwc".source = ../config/labwc;
+  xdg.configFile."labwc".source = ../config/labwc;
 }

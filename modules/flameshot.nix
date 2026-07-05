@@ -6,5 +6,5 @@
     flameshot
   ] else []);
   
-  home.file.".config/flameshot".source = ../config/flameshot;
+  xdg.configFile."flameshot".source = ../config/flameshot;
 }
