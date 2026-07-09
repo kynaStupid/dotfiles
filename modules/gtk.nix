@@ -1,34 +1,26 @@
-{ config, pkgs, lib, isNixOS, ... }:
+# gtk.nix
+{ config, pkgs, lib, theme, ... }:
 
 {
   gtk = {
     enable = true;
 
     theme = {
-      name = "catppuccin-mocha-mauve-standard+normal";
-      package = pkgs.catppuccin-gtk.override {
-	    variant = "mocha";
-		accents = [ "mauve" ];
-		size = "standard";
-		tweaks = [ "normal" ];
-	  };
+      name = theme.gtk.name;
     };
 
     iconTheme = {
-      name = "Papirus";
-      package = pkgs.papirus-icon-theme;
+      name = theme.icons.name;
     };
 
     cursorTheme = {
-      name = "catppuccin-mocha-mauve-cursors";
-      size = 24;
-      package = pkgs.catppuccin-cursors;
+      name = theme.cursor.name;
+      size = theme.cursor.size;
     };
 
     font = {
-      name = "Maple Mono NF CN";
-      size = 12;
-      package = pkgs.maple-mono.NF-CN;
+      name = theme.font.name;
+      size = theme.font.size;
     };
 
     gtk3.extraConfig = {
@@ -42,17 +34,17 @@
       gtk-xft-hinting = 1;
       gtk-xft-hintstyle = "hintslight";
       gtk-xft-rgba = "rgb";
-      gtk-application-prefer-dark-theme = 1;
+      gtk-application-prefer-dark-theme = theme.dark;
     };
 
 	gtk4.extraConfig = {
-      gtk-application-prefer-dark-theme = 1;
+      gtk-application-prefer-dark-theme = theme.dark;
     };
   };
   dconf.enable = true;
   dconf.settings."org/gnome/desktop/interface" = {
-    color-scheme = "prefer-dark";
-    gtk-theme = "catppuccin-mocha-mauve-standard+normal";
-    icon-theme = "Papirus";
+    color-scheme = if theme.dark then "prefer-dark" else "prefer-light";
+    gtk-theme = theme.gtk.name;
+    icon-theme = theme.icons.name;
   };
 }

@@ -17,8 +17,7 @@
 
   imports = [
   	./modules/packages.nix
-	./modules/gtk.nix
-	./modules/qt.nix
+	./modules/theme.nix
 	./modules/labwc.nix
 	./modules/mango.nix
 	./modules/quickshell.nix

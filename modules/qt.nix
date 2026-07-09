@@ -1,11 +1,7 @@
-{config, pkgs, lib, isNixOS, ... }:
+# qt.nix
+{ config, pkgs, lib, theme, ... }:
 
 {
-  home.packages = with pkgs; [
-  	maple-mono.NF-CN
-	papirus-icon-theme
-  ];
-
   qt = {
     enable = true;
     platformTheme.name = "qtct";
@@ -14,12 +10,12 @@
     qt5ctSettings = {
       Appearance = {
         style = "kvantum";
-        icon_theme = "Papirus";
+        icon_theme = theme.icons.name;
         standard_dialogs = "default";
       };
       Fonts = {
-	  	fixed = "\"Maple Mono NF CN,12,-1,5,50,0,0,0,0,0,Regular\"";
-        general = "\"Maple Mono NF CN,12,-1,5,50,0,0,0,0,0,Regular\"";
+	  	fixed = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
+        general = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
       };
       Interface = {
         activate_item_on_single_click = 1;
@@ -42,12 +38,12 @@
     qt6ctSettings = {
       Appearance = {
         style = "kvantum";
-        icon_theme = "Papirus";
+        icon_theme = theme.icons.name;
         standard_dialogs = "default";
       };
       Fonts = {
-	  	fixed = "\"Maple Mono NF CN,12,-1,5,50,0,0,0,0,0,Regular\"";
-        general = "\"Maple Mono NF CN,12,-1,5,50,0,0,0,0,0,Regular\"";
+	  	fixed = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
+        general = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
       };
       Interface = {
         activate_item_on_single_click = 1;
@@ -69,13 +65,7 @@
 
     kvantum = {
       enable = true;
-      themes = with pkgs; [
-        (catppuccin-kvantum.override {
-          variant = "mocha";
-          accent = "mauve";
-        })
-      ];
-      settings.General.theme = "catppuccin-mocha-mauve";
+      settings.General.theme = theme.qt.name;
     };
   };
 }
