@@ -49,6 +49,7 @@ in {
   _module.args.theme = theme;
 
   home.pointerCursor = {
+    enable = true;
     name = theme.cursor.name;
 	size = theme.cursor.size;
 	package = pkgs.catppuccin-cursors.mochaMauve;
