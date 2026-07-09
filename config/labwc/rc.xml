@@ -19,7 +19,7 @@
     </keybind>
 
     <keybind key="W-b">
-      <action name="Execute" command="chromium" />
+      <action name="Execute" command="helium-browser" />
     </keybind>
     <!--
       Remove a previously defined keybind
