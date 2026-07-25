@@ -23,7 +23,7 @@
 	open_on_startup = true;
 	startup_minimized = true;
 	autoupdate = false;
-	update_notify = true;
+	update_notify = false;
 	desktop_notifications = true;
 	auto_clear_cache = true;
 	multi_instance = false;

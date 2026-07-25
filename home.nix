@@ -6,6 +6,8 @@
   home.stateVersion = "26.05";
   
   programs.home-manager.enable = true;
+
+  systemd.user.startServices = "sd-switch";
   
   catppuccin = {
     enable = true;
@@ -18,11 +20,13 @@
   imports = [
   	./modules/packages.nix
 	./modules/theme.nix
+	./modules/zsh.nix
 	./modules/labwc.nix
 	./modules/mango.nix
 	./modules/quickshell.nix
 	./modules/waybar.nix
 	./modules/mako.nix
+	./modules/rofi.nix
 	./modules/alacritty.nix
 	./modules/btop.nix
 	./modules/yazi.nix

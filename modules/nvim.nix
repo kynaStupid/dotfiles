@@ -2,7 +2,7 @@
  
 {
   programs.neovim = {
-    enable = isNixOS;
+    enable = true;
 
 	viAlias = true;
 	vimAlias = true;

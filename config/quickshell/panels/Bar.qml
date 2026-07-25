@@ -32,15 +32,15 @@ PanelWindow {
 
 		anchors.fill: parent
 
-		Border {
+		/*Border {
 			id: border
 			root: root
 
-			geometry: ([]
+			geometry: []
 				.concat(statusBar.borderGeometry)
 				.concat(taskBar.borderGeometry)
-			)
-		}
+				.concat(mprisExpanded.borderGeometry)
+		}*/
 
 		Rectangle {
 			id: statusBar
@@ -81,7 +81,7 @@ PanelWindow {
 					onEntered: Globals.expandTaskBar()
 				}
 
-				/*MouseArea {
+				MouseArea {
 					id: mprisWidgetHotspot
 					hoverEnabled: mprisCompact.visible
 					anchors.top: parent.top
@@ -89,7 +89,7 @@ PanelWindow {
 					x: Globals.absoluteX(mprisCompact, statusBar) + mprisCompact.width - width
 					width: Globals.barHeight
 					onEntered: Globals.expandMprisWidget()
-				}*/
+				}
 			}
 
 			// left
@@ -251,7 +251,7 @@ PanelWindow {
 				anchors.left: parent.left
 				anchors.top: taskBar.bottom
 
-				radius: Math.min(taskBar.height - Globals.barRadius, Globals.barRadius)
+				radius: Math.min(Globals.barRadius, taskBar.height - Globals.barRadius)
 				color: Globals.barColor
 				corner: Qt.BottomRightCorner
 			}
@@ -260,29 +260,63 @@ PanelWindow {
 				anchors.left: taskBar.right
 				anchors.top: taskBar.top
 
-				radius: Math.min(taskBar.height - Globals.barRadius, Globals.barRadius)
+				radius: Math.min(Globals.barRadius, taskBar.height - Globals.barRadius)
 				color: Globals.barColor
 				corner: Qt.BottomRightCorner
 			}
 		}
 
-		/*MprisWidget.Expanded {
+		Rectangle {
+			id: mprisExpandedRectangle
+			anchors.top: statusBar.bottom
+			anchors.left: mprisExpanded.left
+			anchors.right: mprisExpanded.right
+			height: mprisExpanded.height - statusBar.height
+
+			bottomLeftRadius: Globals.barRadius
+			bottomRightRadius: Globals.barRadius
+			color: Globals.barColor
+		}
+		InvertedCorner {
+			id: mprisExpandedInvertedCornerLeft
+			anchors.right: mprisExpandedRectangle.left
+			anchors.top: statusBar.bottom
+
+			radius: Math.min(Globals.barRadius, mprisExpandedRectangle.height - Globals.barRadius)
+			color: Globals.barColor
+			corner: Qt.BottomLeftCorner
+		}
+		InvertedCorner {
+			id: mprisExpandedInvertedCornerRight
+			anchors.left: mprisExpandedRectangle.right
+			anchors.top: statusBar.bottom
+
+			radius: Math.min(Globals.barRadius, mprisExpandedRectangle.height - Globals.barRadius)
+			color: Globals.barColor
+			corner: Qt.BottomRightCorner
+		}
+		MprisWidget.Expanded {
 			id: mprisExpanded
 			anchors.top: statusBar.top
 			x: Globals.absoluteX(mprisCompact, root)
 
+			readonly property var borderGeometry: [
+				{ type: "rect", item: mprisExpandedRectangle },
+				{ type: "invertedCorner", item: mprisExpandedInvertedCornerLeft },
+				{ type: "invertedCorner", item: mprisExpandedInvertedCornerRight }
+			]
+
 			visible: Globals.mprisWidgetVisible || height > 0
+		}
 
-			Rectangle {
-				anchors.left: parent.left
-				anchors.right: parent.right
-				y: statusBar.height
-				height: parent.height - statusBar.height
+		Border {
+			id: border
+			root: root
 
-				bottomLeftRadius: Globals.barRadius
-				bottomRightRadius: Globals.barRadius
-				color: Globals.barColor
-			}
-		}*/
+			geometry: []
+				.concat(statusBar.borderGeometry)
+				.concat(taskBar.borderGeometry)
+				.concat(mprisExpanded.borderGeometry)
+		}
 	}
 }
