@@ -2,31 +2,31 @@
 i use arch btw
 
 ### includes:
-catppuccin mocha mauve used for everything
-nix flake
-    fastfetch
-    waybar
-    thunar
-    gtk theme
-    qt theme
-    zsh config (zinit)
-    labwc config
-    mango config
-    quickshell config
-    waybar
-    mako
-    rofi
-    alacritty config
-    btop
-    yazi
-    neovim
-    thunar
-    vlc
-    flameshot config
-    obs studio config
-    dorion config
+catppuccin mocha mauve used for everything\n
+nix flake\n
+    fastfetch\n
+    waybar\n
+    thunar\n
+    gtk theme\n
+    qt theme\n
+    zsh config (zinit)\n
+    labwc config\n
+    mango config\n
+    quickshell config\n
+    waybar\n
+    mako\n
+    rofi\n
+    alacritty config\n
+    btop\n
+    yazi\n
+    neovim\n
+    thunar\n
+    vlc\n
+    flameshot config\n
+    obs studio config\n
+    dorion config\n
     libreoffice config
 
 ## notes
-stuff with only the configs mentioned are expected to by installed on the system
+stuff with only the configs mentioned are expected to by installed on the system\n
 (unless on nixOS)
