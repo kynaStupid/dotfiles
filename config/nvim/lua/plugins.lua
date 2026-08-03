@@ -1,4 +1,4 @@
--- Bootstrap lazy.nvim
+-- lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	vim.fn.system({
@@ -10,28 +10,41 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-	-- Catppuccin Mocha
-	{ "catppuccin/nvim", name = "catppuccin", priority = 1000,
-		config = function() vim.cmd("colorscheme catppuccin-mocha") end },
+	-- theme
+	{ "catppuccin/nvim", name = "catppuccin", priority = 1000, config = function()
+			require("catppuccin").setup({
+				transparent_background = true
+			})
+
+			vim.cmd("colorscheme catppuccin-mocha")
+		end
+	},
+
+	-- terminal
+	{ "akinsho/toggleterm.nvim", version = "*",
+		config = function() require("config.toggleterm") end },
 	
-	-- Fuzzy finder
-	{ "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
+	-- fzf
+	{ "ibhagwan/fzf-lua", dependencies = { "nvim-tree/nvim-web-devicons", },
+		config = function() require("config.fzf") end },
 	
-	-- File tree
+	-- file tree
 	{ "nvim-tree/nvim-tree.lua" },
 	
-	-- Syntax highlighting
+	-- syntax highlighting
 	{ "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
 	
-	-- Status line
+	-- status line
 	{ "nvim-lualine/lualine.nvim" },
 	
-	-- C++
+	-- c++
 	{ "neovim/nvim-lspconfig", config = function() require("config.lspconfig") end }, -- LSP setup
 	{ "hrsh7th/nvim-cmp", dependencies = { "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "hrsh7th/cmp-path" },
-		config = function() require("config.cmp") end }, -- Completion
-	--{ "nvim-lua/lsp-format.nvim", config = require("config.format") }, -- Auto-formatting
-	--{ "nvim-telescope/telescope-lsp-handlers", dependencies = { "nvim-telescope/telescope.nvim" } }, -- LSP handlers for Telescope
-	{ "nvim-treesitter/nvim-treesitter-textobjects", dependencies = { "nvim-treesitter/nvim-treesitter" } }, -- Text objects for C++
-	{ "kylechui/nvim-surround", }, -- Surround plugin
+		config = function() require("config.cmp") end }, -- completion
+	--{ "nvim-lua/lsp-format.nvim", config = require("config.format") }, -- auto-formatting
+	--{ "nvim-telescope/telescope-lsp-handlers", dependencies = { "nvim-telescope/telescope.nvim" } }, -- LSP handlers for telescope
+	{ "nvim-treesitter/nvim-treesitter-textobjects", dependencies = { "nvim-treesitter/nvim-treesitter" } }, -- text objects for C++
+	{ "kylechui/nvim-surround", }, -- surround
+}, {
+	lockfile = vim.fn.stdpath("state") .. "/lazy-lock.json",
 })

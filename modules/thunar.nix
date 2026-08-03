@@ -6,11 +6,11 @@
     thunar-volman
     thunar-archive-plugin
     tumbler
-	gvfs
+		gvfs
   ];
 
   systemd.user.packages = with pkgs; [
     gvfs
-	tumbler
+		tumbler
   ];
 }

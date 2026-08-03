@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+THEME_ROOT="${THEME_ROOT:-$HOME/.local/state/theme-switcher}"
+THEMES_DIR="$THEME_ROOT/themes"
+ACTIVE_DIR="$THEME_ROOT/active"
+STATE_FILE="$THEME_ROOT/current"
+NVIM_SOCK_DIR="${XDG_RUNTIME_DIR:-/tmp}/nvim-theme-sockets"
+
+list_themes() {
+	find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort
+}
+
+usage() {
+	cat >&2 <<EOF
+usage: theme-switch <theme-id>
+       theme-switch --list
+       theme-switch --current
+Sheb
+available themes:
+$(list_themes | sed 's/^/  /')
+EOF
+}
+
+case "${1:-}" in
+	-l|--list)
+		list_themes
+		exit 0
+		;;
+	-c|--current)
+		cat "$STATE_FILE" 2>/dev/null || echo "(none set)"
+		exit 0
+		;;
+	-h|--help|"")
+		usage
+		exit 1
+		;;
+esac
+
+name="$1"
+dir="$THEMES_DIR/$name"
+
+if [ ! -d "$dir" ]; then
+	echo "error: unknown theme '$name'" >&2
+	usage
+	exit 1
+fi
+
+meta="$dir/meta.json"
+if [ ! -f "$meta" ]; then
+	echo "error: $meta missing — rebuild home-manager first" >&2
+	exit 1
+fi
+
+gtk_name=$(jq -r '.gtk.name' "$meta")
+qt_name=$(jq -r '.qt.name' "$meta")
+icon_name=$(jq -r '.icons.name' "$meta")
+cursor_name=$(jq -r '.cursor.name' "$meta")
+cursor_size=$(jq -r '.cursor.size' "$meta")
+
+mkdir -p "$ACTIVE_DIR"
+
+# gtk / icons / cursor
+gsettings set org.gnome.desktop.interface gtk-theme "$gtk_name" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface icon-theme "$icon_name" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface cursor-theme "$cursor_name" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" 2>/dev/null || true
+
+mkdir -p ~/.icons/default
+
+cat > ~/.icons/default/index.theme <<EOF
+[Icon Theme]
+Name=Default
+Comment=Default Cursor Theme
+Inherits=$cursor_name
+EOF
+
+# qt / kvantum
+sed -i "s/^theme=.*/theme=$qt_name/" "$HOME/.config/Kvantum/kvantum.kvconfig"
+
+# mango
+if [ -f "$dir/mango.conf" ]; then
+	ln -sfn "$dir/mango.conf" "$ACTIVE_DIR/mango.conf"
+	if command -v mmsg >/dev/null 2>&1; then
+		mmsg dispatch reload_config >/dev/null || echo "warn: mango reload failed" >&2
+	fi
+fi
+
+# quickshell
+if [ -f "$dir/quickshell-theme.json" ]; then
+	cat "$dir/quickshell-theme.json" > "$ACTIVE_DIR/quickshell-theme.json"
+	(quickshell kill >/dev/null && quickshell >/dev/null 2>&1 &) || echo "warn: quickshell restart failed" >&2
+fi
+
+# alacritty
+if [ -f "$dir/alacritty.toml" ]; then
+	cat "$dir/alacritty.toml" > "$ACTIVE_DIR/alacritty.toml"
+fi
+
+# --- waybar: no hot-reload for JSON side, but restart is cheap and near-instant ---
+# if pgrep -x waybar >/dev/null 2>&1; then
+# 	pkill -SIGUSR2 waybar || true
+# fi
+
+# --- mako ---
+# if command -v makoctl >/dev/null 2>&1; then
+# 	makoctl reload || true
+# fi
+
+# --- wallpaper, only if this theme carries one ---
+# if [ -f "$dir/wallpaper" ] && command -v awww >/dev/null 2>&1; then
+# 	wallpaper_path="$(cat "$dir/wallpaper")"
+# 	awww img "$wallpaper_path" || echo "warn: wallpaper set failed" >&2
+# fi
+
+# neovim
+if [ -f "$dir/theme_active.lua" ]; then
+	mkdir -p "$HOME/.config/nvim/lua"
+	ln -sfn "$dir/theme_active.lua" "$HOME/.config/nvim/lua/theme_active.lua"
+fi
+
+if [ -d "$NVIM_SOCK_DIR" ]; then
+	for sock in "$NVIM_SOCK_DIR"/*.sock; do
+		[ -S "$sock" ] || continue
+		nvim --server "$sock" --remote-expr 'v:lua.require("theme").apply()' >/dev/null 2>&1 || true
+	done
+fi
+
+echo "$name" > "$STATE_FILE"
+echo "switched to $name"

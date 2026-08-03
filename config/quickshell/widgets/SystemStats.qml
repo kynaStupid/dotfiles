@@ -4,14 +4,14 @@ import "../services"
 
 Item {
 	component CpuWidget: Text {
-		color: Mocha.yellow
-		font.pointSize: Globals.barTextSize
+		color: Theme.yellow
+		font.pointSize: Theme.barTextSize
 		text: "  " + SystemStats.cpuUsage + "%cpu"
 	}
 
 	component MemWidget: Text {
-		color: Mocha.blue
-		font.pointSize: Globals.barTextSize
+		color: Theme.blue
+		font.pointSize: Theme.barTextSize
 		text: " " + SystemStats.memUsage + "%ram"
 	}
 }

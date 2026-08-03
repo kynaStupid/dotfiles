@@ -1,4 +1,4 @@
-{ config, pkgs, lib, theme, isNixOS, ... }:
+{ config, pkgs, lib, themes, isNixOS, ... }:
 
 let
 	inherit (config.lib.formats.rasi) mkLiteral;
@@ -14,9 +14,9 @@ in {
 
 		theme = {
 			"*" = {
-				font = "${theme.font.name} ${toString theme.font.size}";
-				background-color = mkLiteral "#${theme.colors.base.hex}";
-				foreground-color = mkLiteral "#${theme.colors.text.hex}";
+				# font = "${theme.font.name} ${toString theme.font.size}";
+				# background-color = mkLiteral "#${theme.colors.base.hex}";
+				# foreground-color = mkLiteral "#${theme.colors.text.hex}";
 			};
 
 			"#inputbar" = {
@@ -28,7 +28,12 @@ in {
 
 			window = {
 				width = 700;
-				border = theme.border.width;
+
+				# border = theme.border.width;
+				# border-radius = theme.border.radius;
+				# border-color = mkLiteral "#${theme.colors.mauve.hex}";
+
+				# padding = theme.margin;
 			};
 		};
 	};

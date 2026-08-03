@@ -1,14 +1,14 @@
 -- keymaps.lua
 local map = vim.keymap.set
 
--- Leader key
+-- lleader
 vim.g.mapleader = " "
 
--- Save & quit
+-- save & quit
 map("n", "<leader>w", "<cmd>w<CR>", { desc = "Save" })
 map("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
 
--- Mode
+-- mode
 map("n", "o", "a") -- append
 map("n", "<leader>o", "o") -- new line and insert
 --i is insert
@@ -34,24 +34,28 @@ map("n", "kf", "dw") -- del word
 --yy is copy line
 --p is paste
 
--- Window navigation
+-- window navigation
 map("n", "<Up>", "<C-w>k")
 map("n", "<Left>", "<C-w>h")
 map("n", "<Down>", "<C-w>j")
 map("n", "<Right>", "<C-w>l")
 
--- Clear search highlight
+-- clear search highlight
 map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
--- Surround
+-- surround
 map("n", "js", "<Plug>(nvim-surround-normal)")
 map("n", "ks", "<Plug>(nvim-surround-delete)")
 map("n", "ls", "<Plug>(nvim-surround-change)")
 
--- Telescope
-map("n", "<leader>ff", "<cmd>Telescope find_files<CR>")
-map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>")
-map("n", "<leader>fb", "<cmd>Telescope buffers<CR>")
+-- fzf
+
+local fzf = require("fzf-lua")
+map("n", "<leader>ff", fzf.files, { desc = "Find files" })
+map("n", "<leader>fg", fzf.live_grep, { desc = "Live grep" })
+map("n", "<leader>fb", fzf.buffers, { desc = "Buffers" })
+map("n", "<leader>fh", fzf.help_tags, { desc = "Help" })
+map("n", "<leader>fr", fzf.oldfiles, { desc = "Recent files" })
 
 -- nvim tree
 map("n", "<leader>e", "<cmd>NvimTreeToggle<CR>")

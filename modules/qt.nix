@@ -1,7 +1,8 @@
 # qt.nix
-{ config, pkgs, lib, theme, ... }:
+{ config, pkgs, lib, themes, ... }:
 
-{
+let theme = builtins.head themes;
+in {
   qt = {
     enable = true;
     platformTheme.name = "qtct";
@@ -14,7 +15,7 @@
         standard_dialogs = "default";
       };
       Fonts = {
-	  	fixed = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
+	  		fixed = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
         general = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
       };
       Interface = {
@@ -42,7 +43,7 @@
         standard_dialogs = "default";
       };
       Fonts = {
-	  	fixed = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
+	  		fixed = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
         general = "\"${theme.font.name},${toString theme.font.size},-1,5,50,0,0,0,0,0,Regular\"";
       };
       Interface = {
@@ -63,9 +64,11 @@
       };
     };
 
-    kvantum = {
-      enable = true;
-      settings.General.theme = theme.qt.name;
-    };
+    kvantum.enable = false;
   };
+	home.packages = with pkgs; [
+		libsForQt5.qtstyleplugin-kvantum
+		kdePackages.qtstyleplugin-kvantum
+	];
+	#home.sessionVariables.QT_STYLE_OVERRIDE = "kvantum";
 }

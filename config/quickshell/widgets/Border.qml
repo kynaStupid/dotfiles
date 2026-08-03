@@ -9,6 +9,10 @@ import "../widgets"
 Item {
 	property var geometry: []
 	property Item root: null
+	readonly property var componentMap: {
+		"rectangle": { "inner": innerRectangleComponent, "outer": outerRectangleComponent },
+		"invertedCorner": { "inner": innerInvertedCornerComponent, "outer": outerInvertedCornerComponent }
+	}
 
 	anchors.fill: parent
 	
@@ -28,9 +32,7 @@ Item {
 				asynchronous: true
 				active: geom.item.width > 0 && geom.item.height > 0
 
-      		  	sourceComponent: modelData.type === "rect"?
-					innerRectComponent:
-					innerInvertedCornerComponent
+      		  	sourceComponent: componentMap[modelData.type].inner
 			}
 		}
 	}
@@ -55,15 +57,13 @@ Item {
 				asynchronous: true
 				//active: geom.item.width > 0 && geom.item.height > 0
 
-      		  	sourceComponent: modelData.type === "rect"?
-					outerRectComponent:
-					outerInvertedCornerComponent
+				sourceComponent: componentMap[modelData.type].outer
 			}
 		}
 	}
 
 	Component {
-		id: innerRectComponent
+		id: innerRectangleComponent
 
 		Rectangle {
 			x: Globals.absoluteX(parent.geom.item, root)
@@ -94,21 +94,19 @@ Item {
 			width: _radius
 			height: _radius
 
-    		rotation: {
-        		switch (_corner) {
-        		case Qt.TopLeftCorner:     return 180
-        		case Qt.TopRightCorner:    return 270
-        		case Qt.BottomRightCorner: return 0
-        		case Qt.BottomLeftCorner:  return 90
-        		}
-    		}
-    		transformOrigin: Item.Center
-
 			Shape {
 				anchors.fill: parent
     			antialiasing: true
-				rotation: 180
-				transformOrigin: Item.Center
+
+    			rotation: {
+        			switch (_corner) {
+        			case Qt.TopLeftCorner:     return 0
+        			case Qt.TopRightCorner:    return 90
+        			case Qt.BottomRightCorner: return 180
+        			case Qt.BottomLeftCorner:  return 270
+        			}
+    			}
+    			transformOrigin: Item.Center
 
     			ShapePath {
         			fillColor: "black"
@@ -135,11 +133,11 @@ Item {
 			}
 
 			Rectangle {
-				x: _geom.item.maskPos.x + Globals.borderWidth
-				y: _geom.item.maskPos.y + Globals.borderWidth
-				width: (_radius - Globals.borderWidth)*2
-				height: (_radius - Globals.borderWidth)*2
-				radius: _radius - Globals.borderWidth
+				x: _geom.item.maskPos.x + Theme.borderWidth
+				y: _geom.item.maskPos.y + Theme.borderWidth
+				width: (_radius - Theme.borderWidth)*2
+				height: (_radius - Theme.borderWidth)*2
+				radius: _radius - Theme.borderWidth
 
 				color: "black"
 			}
@@ -147,24 +145,24 @@ Item {
 	}
 
 	Component {
-		id: outerRectComponent
+		id: outerRectangleComponent
 
 		Rectangle {
 			visible: parent.geom.item.width > 0 && parent.geom.item.height > 0
 
-			x: Globals.absoluteX(parent.geom.item, root) - Globals.borderWidth
-			y: Globals.absoluteY(parent.geom.item, root) - Globals.borderWidth
-			width: parent.geom.item.width + Globals.borderWidth*2
-			height: parent.geom.item.height + Globals.borderWidth*2
+			x: Globals.absoluteX(parent.geom.item, root) - Theme.borderWidth
+			y: Globals.absoluteY(parent.geom.item, root) - Theme.borderWidth
+			width: parent.geom.item.width + Theme.borderWidth*2
+			height: parent.geom.item.height + Theme.borderWidth*2
 
-			radius: parent.geom.item.radius === 0? 0: parent.geom.item.radius + Globals.borderWidth
-			topLeftRadius: parent.geom.item.topLeftRadius === 0? 0: parent.geom.item.topLeftRadius + Globals.borderWidth
-			topRightRadius: parent.geom.item.topRightRadius === 0? 0: parent.geom.item.topRightRadius + Globals.borderWidth
-			bottomLeftRadius: parent.geom.item.bottomLeftRadius === 0? 0: parent.geom.item.bottomLeftRadius + Globals.borderWidth
-			bottomRightRadius: parent.geom.item.bottomRightRadius === 0? 0: parent.geom.item.bottomRightRadius + Globals.borderWidth
+			radius: parent.geom.item.radius === 0? 0: parent.geom.item.radius + Theme.borderWidth
+			topLeftRadius: parent.geom.item.topLeftRadius === 0? 0: parent.geom.item.topLeftRadius + Theme.borderWidth
+			topRightRadius: parent.geom.item.topRightRadius === 0? 0: parent.geom.item.topRightRadius + Theme.borderWidth
+			bottomLeftRadius: parent.geom.item.bottomLeftRadius === 0? 0: parent.geom.item.bottomLeftRadius + Theme.borderWidth
+			bottomRightRadius: parent.geom.item.bottomRightRadius === 0? 0: parent.geom.item.bottomRightRadius + Theme.borderWidth
 
 			color: Globals.borderColor
-			Behavior on color { ColorAnimation { duration: 300 } }
+			Behavior on color { ColorAnimation { duration: Theme.animFocusDuration } }
 		}
 	}
 
@@ -180,7 +178,7 @@ Item {
 			height: parent.geom.item.height
 
 			color: Globals.borderColor
-			Behavior on color { ColorAnimation { duration: 300 } }
+			Behavior on color { ColorAnimation { duration: Theme.animFocusDuration } }
 		}
 	}
 }

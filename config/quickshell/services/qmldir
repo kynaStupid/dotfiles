@@ -1,4 +1,4 @@
-singleton Mocha 1.0 Mocha.qml
+singleton Theme 1.0 Theme.qml
 singleton Globals 1.0 Globals.qml
 singleton SystemStats 1.0 SystemStats.qml
 singleton Network 1.0 Network.qml

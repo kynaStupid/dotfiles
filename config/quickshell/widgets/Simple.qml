@@ -15,8 +15,8 @@ Item {
 		signal clicked()
 
 		text: label
-		color: Mocha.text
-		font.pointSize: Globals.barTextSize
+		color: Theme.text
+		font.pointSize: Theme.barTextSize
 
 		MouseArea {
 			anchors.fill: parent
@@ -38,8 +38,8 @@ Item {
 		property string command: "wofi --show drun"
 
 		text: "🔍"
-		color: Mocha.text
-		font.pointSize: Globals.barTextSize
+		color: Theme.text
+		font.pointSize: Theme.barTextSize
 
 		MouseArea {
 			anchors.fill: parent
@@ -57,8 +57,8 @@ Item {
 		// format: "{:%A %B %d %H:%M %p}" -> "Wednesday June 25 14:32 PM"
 		property string format: "dddd MMMM dd hh:mm AP"
 
-		color: Mocha.text
-		font.pointSize: Globals.barTextSize
+		color: Theme.text
+		font.pointSize: Theme.barTextSize
 		text: Qt.formatDateTime(new Date(), format)
 
 		Timer {

@@ -14,19 +14,19 @@ Item {
 
 		visible: MprisService.hasPlayers && canVisible
 		implicitWidth: visible? layout.implicitWidth: 0
-		implicitHeight: Globals.barHeight
+		implicitHeight: Theme.barHeight
 
 		RowLayout {
 			id: layout
 			anchors.fill: parent
-			spacing: Globals.barMargin
+			spacing: Theme.barMargin
 
 			// prev
 			Text {
 				text: "󰒮"
 				color: MprisService.activePlayer?.canGoPrevious?
-					Mocha.text: Mocha.surface2
-				font.pointSize: Globals.barTextSize
+					Theme.text: Theme.surface2
+				font.pointSize: Theme.barTextSize
 				MouseArea {
 					anchors.fill: parent
 					cursorShape: Qt.PointingHandCursor
@@ -38,8 +38,8 @@ Item {
 			// play/pause
 			Text {
 				text: MprisService.activePlayer?.isPlaying? "󰏤": "󰐊"
-				color: Mocha.text
-				font.pointSize: Globals.barTextSize
+				color: Theme.text
+				font.pointSize: Theme.barTextSize
 				MouseArea {
 					anchors.fill: parent
 					cursorShape: Qt.PointingHandCursor
@@ -53,8 +53,8 @@ Item {
 			Text {
 				text: "󰒭"
 				color: MprisService.activePlayer?.canGoNext?
-					Mocha.text: Mocha.surface2
-				font.pointSize: Globals.barTextSize
+					Theme.text: Theme.surface2
+				font.pointSize: Theme.barTextSize
 				MouseArea {
 					anchors.fill: parent
 					cursorShape: Qt.PointingHandCursor
@@ -74,8 +74,8 @@ Item {
 					if (title && artist) return title + " — " + artist
 					return title || artist || "Unknown"
 				}
-				color: Mocha.text
-				font.pointSize: Globals.barTextSize
+				color: Theme.text
+				font.pointSize: Theme.barTextSize
 				elide: Text.ElideRight
 			}
 		}
@@ -85,9 +85,9 @@ Item {
 		id: expanded
 
 		property real maxHeight: 400
-		readonly property real cardHeight: 80
-		readonly property real cardSpacing: Globals.barMargin
-		readonly property real padding: Globals.barMargin
+		property real cardHeight: 80
+		readonly property real cardSpacing: Theme.barMargin
+		readonly property real padding: Theme.barMargin
 
 		implicitWidth: 300
 		height: Globals.mprisWidgetVisible?
@@ -99,21 +99,11 @@ Item {
 		Behavior on height { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
 
 		color: "transparent"
-		radius: Globals.barRadius
+		radius: Theme.barRadius
 		opacity: Globals.barOpacity
 		Behavior on opacity { NumberAnimation { duration: 300 } }
 
 		clip: true
-
-		MouseArea {
-			anchors.fill: parent
-			hoverEnabled: true
-			onEntered: Globals.mprisWidgetHovered = true
-			onExited: {
-				Globals.mprisWidgetHovered = false
-				Globals.updateWidgetsVisible()
-			}
-		}
 
 		Flickable {
 			anchors.fill: parent
@@ -138,8 +128,8 @@ Item {
 	
 						width: parent.width
 						height: expanded.cardHeight
-						radius: Globals.barRadius
-						color: Mocha.surface0
+						radius: Theme.barRadius
+						color: Theme.surface0
 	
 						// position timer for smooth progress bar
 						Timer {
@@ -151,15 +141,15 @@ Item {
 	
 						RowLayout {
 							anchors.fill: parent
-							anchors.margins: Globals.barMargin
-							spacing: Globals.barMargin
+							anchors.margins: Theme.barMargin
+							spacing: Theme.barMargin
 	
 							// album art
 							Rectangle {
-								width: expanded.cardHeight - Globals.barMargin * 2
+								width: expanded.cardHeight - Theme.barMargin * 2
 								height: width
-								radius: Globals.barRadius / 2
-								color: Mocha.surface1
+								radius: Theme.barRadius / 2
+								color: Theme.surface1
 								clip: true
 	
 								Image {
@@ -174,7 +164,7 @@ Item {
 								Text {
 									anchors.centerIn: parent
 									text: "󰎈"
-									color: Mocha.overlay0
+									color: Theme.overlay0
 									font.pointSize: 24
 									visible: card.player.trackArtUrl === ""
 								}
@@ -189,8 +179,8 @@ Item {
 								Text {
 									Layout.fillWidth: true
 									text: card.player.trackTitle || "Unknown"
-									color: Mocha.text
-									font.pointSize: Globals.barTextSize
+									color: Theme.text
+									font.pointSize: Theme.barTextSize
 									font.bold: true
 									elide: Text.ElideRight
 								}
@@ -199,8 +189,8 @@ Item {
 								Text {
 									Layout.fillWidth: true
 									text: card.player.trackArtist || ""
-									color: Mocha.subtext0
-									font.pointSize: Globals.barTextSize - 2
+									color: Theme.subtext0
+									font.pointSize: Theme.barTextSize - 2
 									elide: Text.ElideRight
 								}
 
@@ -212,7 +202,7 @@ Item {
 
 									Rectangle {
 										anchors.fill: parent
-										color: Mocha.surface2
+										color: Theme.surface2
 										radius: 2
 									}
 									Rectangle {
@@ -220,20 +210,20 @@ Item {
 											? parent.width * (card.player.position / card.player.length)
 											: 0
 										height: parent.height
-										color: Mocha.accent
+										color: Theme.accent
 										radius: 2
 									}
 								}
 
 								// controls
 								RowLayout {
-									spacing: Globals.barMargin
+									spacing: Theme.barMargin
 	
 									Text {
 										text: "󰒮"
 										color: card.player.canGoPrevious
-											? Mocha.text : Mocha.surface2
-										font.pointSize: Globals.barTextSize
+											? Theme.text : Theme.surface2
+										font.pointSize: Theme.barTextSize
 										MouseArea {
 											anchors.fill: parent
 											cursorShape: Qt.PointingHandCursor
@@ -244,8 +234,8 @@ Item {
 
 									Text {
 										text: card.player.isPlaying ? "󰏤" : "󰐊"
-										color: Mocha.text
-										font.pointSize: Globals.barTextSize + 2
+										color: Theme.text
+										font.pointSize: Theme.barTextSize + 2
 											MouseArea {
 											anchors.fill: parent
 											cursorShape: Qt.PointingHandCursor
@@ -256,8 +246,8 @@ Item {
 									Text {
 										text: "󰒭"
 										color: card.player.canGoNext
-											? Mocha.text : Mocha.surface2
-										font.pointSize: Globals.barTextSize
+											? Theme.text : Theme.surface2
+										font.pointSize: Theme.barTextSize
 										MouseArea {
 											anchors.fill: parent
 											cursorShape: Qt.PointingHandCursor
@@ -270,8 +260,8 @@ Item {
 									Item { Layout.fillWidth: true }
 									Text {
 										text: card.player.identity || ""
-										color: Mocha.overlay0
-										font.pointSize: Globals.barTextSize - 3
+										color: Theme.overlay0
+										font.pointSize: Theme.barTextSize - 3
 									}
 								}
 							}

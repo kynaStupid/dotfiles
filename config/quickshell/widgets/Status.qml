@@ -7,8 +7,8 @@ import "../services"
 
 Item {
 	component NetworkWidget: Text {
-		color: Mocha.text
-		font.pointSize: Globals.barTextSize
+		color: Theme.text
+		font.pointSize: Theme.barTextSize
 		text: {
 			if (!Network.connected)
 				return "󰤭 Disconnected"
@@ -26,8 +26,8 @@ Item {
 	}
 
 	component VolumeWidget: Text {
-		color: Mocha.green
-		font.pointSize: Globals.barTextSize
+		color: Theme.green
+		font.pointSize: Theme.barTextSize
 		text: {
 			if (Audio.muted)
 				return "󰝟 Muted"
@@ -48,8 +48,8 @@ Item {
 
 	component BatteryWidget: Text {
 		visible: Battery.present
-		color: Battery.percentage <= 15 && !Battery.charging? Mocha.red: Mocha.text
-		font.pointSize: Globals.barTextSize
+		color: Battery.percentage <= 15 && !Battery.charging? Theme.red: Theme.text
+		font.pointSize: Theme.barTextSize
 		text: {
 			const icon = Battery.charging ? "󰂄" : "󰁹"
 			let s = icon + " " + Battery.percentage + "%"
@@ -62,15 +62,15 @@ Item {
 	component TrayWidget: Item {
 		property var anchorWindow: null
 		property bool vertical: false
-		implicitWidth: vertical? Globals.barHeight: layout.implicitWidth
-		implicitHeight: vertical? layout.implicitHeight: Globals.barHeight
+		implicitWidth: vertical? Theme.barHeight: layout.implicitWidth
+		implicitHeight: vertical? layout.implicitHeight: Theme.barHeight
 
 		GridLayout {
 			id: layout
 			columns: vertical? 1: -1
 			rows: vertical? -1: 1
 			flow: vertical? GridLayout.TopToBottom: GridLayout.LeftToRight
-			columnSpacing: Globals.barMargin; rowSpacing: Globals.barMargin
+			columnSpacing: Theme.barMargin; rowSpacing: Theme.barMargin
 
 			Repeater {
 				model: SystemTray.items
@@ -79,12 +79,12 @@ Item {
 					id: trayItem
 					required property var modelData
 	
-					implicitWidth: Globals.barHeight
-					implicitHeight: Globals.barHeight
+					implicitWidth: Theme.barHeight
+					implicitHeight: Theme.barHeight
 
 					Image {
 						anchors.centerIn: parent
-						anchors.margins: Globals.barMargin
+						anchors.margins: Theme.barMargin
 						width: parent.width
 						height: parent.height
 						source: trayItem.modelData.icon
@@ -114,9 +114,5 @@ Item {
 				}
 			}
 		}
-	}
-
-	component MediaWidget: Item {
-
 	}
 }
