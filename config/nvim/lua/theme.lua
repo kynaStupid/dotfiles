@@ -1,11 +1,10 @@
+-- theme.lua
 local M = {}
+local ACTIVE_PATH = vim.env.HOME .. "/.local/state/theme-switcher/active/nvim-theme.lua"
 
 function M.apply()
-	package.loaded["theme_active"] = nil
-	local ok, name = pcall(require, "theme_active")
-	if ok then
-		vim.schedule(function() pcall(vim.cmd.colorscheme, name) end)
-	end
+	local chunk = loadfile(ACTIVE_PATH)
+	pcall(chunk)
 end
 
 return M

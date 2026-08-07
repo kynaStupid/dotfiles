@@ -4,7 +4,7 @@
 let
 	argb = hex: alpha: "0x${hex}${alpha}";
 
-	mkMangoConf = theme: pkgs.writeText "mango-${theme.id}.conf" ''
+	mkMangoConf = theme: pkgs.writeText "mango-theme-${theme.id}.conf" ''
 focused_opacity=${toString theme.opacity.default}
 unfocused_opacity=${toString theme.opacity.unfocused}
 gappih=${toString theme.spacing}
@@ -33,7 +33,7 @@ cursor_size=${toString theme.cursor.size}
 '';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name = ".local/state/theme-switcher/themes/${theme.id}/mango.conf";
+		name = ".local/state/theme-switcher/themes/${theme.id}/mango-theme.conf";
 		value.source = mkMangoConf theme;
 	}) themes);
 in {

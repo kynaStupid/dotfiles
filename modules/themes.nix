@@ -47,6 +47,7 @@ in {
 				qt = { name = theme.qt.name; };
 				icons = { name = theme.icons.name; };
 				cursor = { name = theme.cursor.name; size = theme.cursor.size; };
+				fsh = { name = theme.fsh.name; };
 			});
 		}) themes) ++
 

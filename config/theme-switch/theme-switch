@@ -79,8 +79,8 @@ EOF
 sed -i "s/^theme=.*/theme=$qt_name/" "$HOME/.config/Kvantum/kvantum.kvconfig"
 
 # mango
-if [ -f "$dir/mango.conf" ]; then
-	ln -sfn "$dir/mango.conf" "$ACTIVE_DIR/mango.conf"
+if [ -f "$dir/mango-theme.conf" ]; then
+	ln -sfn "$dir/mango-theme.conf" "$ACTIVE_DIR/mango-theme.conf"
 	if command -v mmsg >/dev/null 2>&1; then
 		mmsg dispatch reload_config >/dev/null || echo "warn: mango reload failed" >&2
 	fi
@@ -93,9 +93,20 @@ if [ -f "$dir/quickshell-theme.json" ]; then
 fi
 
 # alacritty
-if [ -f "$dir/alacritty.toml" ]; then
-	cat "$dir/alacritty.toml" > "$ACTIVE_DIR/alacritty.toml"
+if [ -f "$dir/alacritty-theme.toml" ]; then
+	cat "$dir/alacritty-theme.toml" > "$ACTIVE_DIR/alacritty-theme.toml"
 fi
+
+# zsh
+if [ -f "$dir/zsh-prompt.zsh" ]; then
+	cat "$dir/zsh-prompt.zsh" > "$ACTIVE_DIR/zsh-prompt.zsh"
+fi
+
+if [ -f "$dir/fsh-theme.ini" ]; then
+	cat "$dir/fsh-theme.ini" > "$ACTIVE_DIR/fsh-theme.ini"
+fi
+
+pkill -USR1 -x zsh 2>/dev/null || true
 
 # --- waybar: no hot-reload for JSON side, but restart is cheap and near-instant ---
 # if pgrep -x waybar >/dev/null 2>&1; then
@@ -114,15 +125,16 @@ fi
 # fi
 
 # neovim
-if [ -f "$dir/theme_active.lua" ]; then
-	mkdir -p "$HOME/.config/nvim/lua"
-	ln -sfn "$dir/theme_active.lua" "$HOME/.config/nvim/lua/theme_active.lua"
+if [ -f "$dir/nvim-theme.lua" ]; then
+	cat "$dir/nvim-theme.lua" > "$ACTIVE_DIR/nvim-theme.lua"
 fi
 
 if [ -d "$NVIM_SOCK_DIR" ]; then
 	for sock in "$NVIM_SOCK_DIR"/*.sock; do
 		[ -S "$sock" ] || continue
-		nvim --server "$sock" --remote-expr 'v:lua.require("theme").apply()' >/dev/null 2>&1 || true
+		nvim --server "$sock" \
+			--remote-send '<Cmd>lua require("theme").apply()<CR>' \
+			>/dev/null 2>&1 || true
 	done
 fi
 

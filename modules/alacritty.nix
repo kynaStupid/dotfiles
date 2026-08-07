@@ -1,7 +1,7 @@
 { config, pkgs, lib, themes, isNixOS, ... }:
 
 let
-	mkAlacrittyToml = theme: pkgs.writeText "mango-${theme.id}.toml" ''
+	mkAlacrittyToml = theme: pkgs.writeText "alacritty-theme-${theme.id}.toml" ''
 		[window]
 		opacity = ${toString theme.opacity.shell}
 
@@ -43,7 +43,7 @@ let
 	'';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name = ".local/state/theme-switcher/themes/${theme.id}/alacritty.toml";
+		name = ".local/state/theme-switcher/themes/${theme.id}/alacritty-theme.toml";
 		value.source = mkAlacrittyToml theme;
 	}) themes);
 in {
@@ -76,7 +76,7 @@ in {
     	];
 
 			general.import = [
-				"${config.home.homeDirectory}/.local/state/theme-switcher/active/alacritty.toml"
+				"${config.home.homeDirectory}/.local/state/theme-switcher/active/alacritty-theme.toml"
 			];
 		};
   };

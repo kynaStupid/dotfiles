@@ -13,3 +13,5 @@ opt.ignorecase = true          -- search is case-insensitive
 opt.smartcase = true           -- ...unless you type uppercase
 opt.scrolloff = 8              -- keep 8 lines visible above/below cursor
 opt.termguicolors = true       -- needed for themes to look right
+
+require("theme").apply()

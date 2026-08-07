@@ -1,7 +1,25 @@
 { config, pkgs, lib, themes, isNixOS, ... }:
 
 let
-	theme =  builtins.head themes;
+	mkZshPrompt = theme: pkgs.writeText "zsh-prompt-${theme.id}.zsh" ''
+		PROMPT='%F{#${theme.colors.blue.hex}}%~$(
+			branch=$(git branch --show-current 2>/dev/null)
+			[[ -n $branch ]] && printf " %%F{#${theme.colors.green.hex}}%s%%f" "$branch"
+		) %# '
+	'';
+
+	promptThemePath = "$HOME/.local/state/theme-switcher/active/zsh-prompt.zsh";
+	fshThemePath = "$HOME/.local/state/theme-switcher/active/fsh-theme.ini";
+
+	themeFileEntries = lib.listToAttrs (map (theme: {
+		name = ".local/state/theme-switcher/themes/${theme.id}/zsh-prompt.zsh";
+		value.source = mkZshPrompt theme;
+	}) themes)
+	//
+	lib.listToAttrs (map (theme: {
+		name = ".local/state/theme-switcher/themes/${theme.id}/fsh-theme.ini";
+		value.source = pkgs.writeText "fsh-theme-${theme.id}.ini" theme.fsh.config;
+	}) themes);
 in {
 	programs.zsh = {
 		enable = true;
@@ -41,10 +59,16 @@ in {
 
 			autoload -Uz colors && colors
 			setopt prompt_subst
-			PROMPT='%F{${toString theme.colors.blue.ansi}}%~$(
-				branch=$(git branch --show-current 2>/dev/null)
-				[[ -n $branch ]] && printf " %%F{${toString theme.colors.green.ansi}}%s%%f" "$branch"
-			) %# '
+			[[ -f "${promptThemePath}" ]] && source "${promptThemePath}"
+			TRAPUSR1() {
+				local prompt_theme="${promptThemePath}"
+				[[ -f "$prompt_theme" ]] && source "$prompt_theme"
+
+				local fsh_theme="${fshThemePath}"
+				[[ -f "$fsh_theme" ]] && fast-theme "$fsh_theme" >/dev/null
+
+				zle && zle reset-prompt
+			}
 
 			# keybinds
 
@@ -62,12 +86,12 @@ in {
 				fi
 			}
 			detach() {
-				setsid "$@" >/dev/null 2>&1 < /dev/null &
+				setsid "$@" >/dev/null < /dev/null &
 			}
 
 			alias install='paru -S'
 			alias remove='paru -Rns'
-			alias update='paru -Syu'
+			alias upgrade='paru -Syu'
 			alias query='paru -Q'
 			alias search='paru -Ss'
 
@@ -80,7 +104,7 @@ in {
   		package = pkgs.zsh;
 	};
 
-	xdg.configFile."fsh".source = ../config/zsh/fsh;
+	home.file = themeFileEntries;
 
 	home.packages = with pkgs; [
 		zinit
