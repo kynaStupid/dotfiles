@@ -61,84 +61,84 @@ in mkTheme {
 		config = ''
 			[base]
 			default = none
-			unknown-token = ${toString palette.colors.red.ansi},bold
+			unknown-token = #${palette.colors.red.hex},bold
 			commandseparator = none
 			redirection = none
-			here-string-tri = ${toString palette.colors.yellow.ansi}
-			here-string-text = ${toString accent.color.ansi}
-			here-string-var = ${toString palette.colors.blue.ansi},bg:${toString palette.colors.crust.ansi}
-			exec-descriptor = ${toString palette.colors.yellow.ansi},bold
-			comment = ${toString palette.colors.overlay0.ansi}
-			correct-subtle = ${toString palette.colors.text.ansi}
-			incorrect-subtle = ${toString palette.colors.red.ansi}
-			subtle-separator = ${toString palette.colors.green.ansi}
-			subtle-bg = bg:${toString palette.colors.surface1.ansi}
+			here-string-tri = #${palette.colors.yellow.hex}
+			here-string-text = #${accent.color.hex}
+			here-string-var = #${palette.colors.blue.hex},bg:#${palette.colors.crust.hex}
+			exec-descriptor = #${palette.colors.yellow.hex},bold
+			comment = #${palette.colors.overlay0.hex}
+			correct-subtle = #${palette.colors.text.hex}
+			incorrect-subtle = #${palette.colors.red.hex}
+			subtle-separator = #${palette.colors.green.hex}
+			subtle-bg = bg:#${palette.colors.surface1.hex}
 			secondary = free
 			recursive-base =
 
 			[command-point]
-			reserved-word = ${toString accent.color.ansi}
-			subcommand = ${toString accent.color.ansi}
-			alias = ${toString palette.colors.green.ansi}
-			suffix-alias = ${toString palette.colors.green.ansi}
-			global-alias = bg:${toString palette.colors.blue.ansi}
-			builtin = ${toString palette.colors.green.ansi}
-			function = ${toString palette.colors.green.ansi}
-			command = ${toString palette.colors.green.ansi}
-			precommand = ${toString palette.colors.green.ansi}
-			hashed-command = ${toString palette.colors.green.ansi}
-			single-sq-bracket = ${toString palette.colors.green.ansi}
-			double-sq-bracket = ${toString palette.colors.green.ansi}
-			double-paren = ${toString palette.colors.yellow.ansi}
+			reserved-word = #${accent.color.hex}
+			subcommand = #${accent.color.hex}
+			alias = #${palette.colors.green.hex}
+			suffix-alias = #${palette.colors.green.hex}
+			global-alias = bg:#${palette.colors.blue.hex}
+			builtin = #${palette.colors.green.hex}
+			function = #${palette.colors.green.hex}
+			command = #${palette.colors.green.hex}
+			precommand = #${palette.colors.green.hex}
+			hashed-command = #${palette.colors.green.hex}
+			single-sq-bracket = #${palette.colors.green.hex}
+			double-sq-bracket = #${palette.colors.green.hex}
+			double-paren = #${palette.colors.yellow.hex}
 
 			[paths]
-			path = ${toString palette.colors.blue.ansi}
+			path = #${palette.colors.blue.hex}
 			pathseparator =
-			path-to-dir = ${toString palette.colors.blue.ansi},underline
-			globbing = ${toString accent.color.ansi},bold
-			globbing-ext = ${toString palette.colors.pink.ansi}
+			path-to-dir = #${palette.colors.blue.hex},underline
+			globbing = #${accent.color.hex},bold
+			globbing-ext = #${palette.colors.pink.hex}
 
 			[brackets]
-			paired-bracket = bg:${toString palette.colors.surface2.ansi}
-			bracket-level-1 = ${toString palette.colors.green.ansi},bold
-			bracket-level-2 = ${toString palette.colors.yellow.ansi},bold
-			bracket-level-3 = ${toString palette.colors.blue.ansi},bold
+			paired-bracket = bg:#${palette.colors.surface2.hex}
+			bracket-level-1 = #${palette.colors.green.hex},bold
+			bracket-level-2 = #${palette.colors.yellow.hex},bold
+			bracket-level-3 = #${palette.colors.blue.hex},bold
 
 			[arguments]
-			optarg-string = ${toString palette.colors.green.ansi}
-			optarg-number = ${toString palette.colors.pink.ansi}
-			single-hyphen-option = ${toString palette.colors.blue.ansi}
-			double-hyphen-option = ${toString palette.colors.blue.ansi}
+			optarg-string = #${palette.colors.green.hex}
+			optarg-number = #${palette.colors.pink.hex}
+			single-hyphen-option = #${palette.colors.blue.hex}
+			double-hyphen-option = #${palette.colors.blue.hex}
 			back-quoted-argument = none
-			single-quoted-argument = ${toString palette.colors.green.ansi}
-			double-quoted-argument = ${toString palette.colors.green.ansi}
-			dollar-quoted-argument = ${toString palette.colors.green.ansi}
+			single-quoted-argument = #${palette.colors.green.hex}
+			double-quoted-argument = #${palette.colors.green.hex}
+			dollar-quoted-argument = #${palette.colors.green.hex}
 
 			[in-string]
-			back-dollar-quoted-argument = ${toString palette.colors.blue.ansi}
-			back-or-dollar-double-quoted-argument = ${toString palette.colors.blue.ansi}
+			back-dollar-quoted-argument = #${palette.colors.blue.hex}
+			back-or-dollar-double-quoted-argument = #${palette.colors.blue.hex}
 
 			[other]
-			variable = ${toString palette.colors.text.ansi}
+			variable = #${palette.colors.text.hex}
 			assign = none
-			assign-array-bracket = ${toString palette.colors.green.ansi}
-			history-expansion = ${toString accent.color.ansi},bold
+			assign-array-bracket = #${palette.colors.green.hex}
+			history-exphexon = #${accent.color.hex},bold
 
 			[math]
-			mathvar = ${toString accent.color.ansi},bold
-			mathnum = ${toString palette.colors.pink.ansi}
-			matherr = ${toString palette.colors.red.ansi}
+			mathvar = #${accent.color.hex},bold
+			mathnum = #${palette.colors.pink.hex}
+			matherr = #${palette.colors.red.hex}
 
 			[for-loop]
 			forvar = none
-			fornum = ${toString palette.colors.pink.ansi}
-			foroper = ${toString accent.color.ansi}
-			forsep = ${toString accent.color.ansi},bold
+			fornum = #${palette.colors.pink.hex}
+			foroper = #${accent.color.hex}
+			forsep = #${accent.color.hex},bold
 
 			[case]
-			case-input = ${toString palette.colors.green.ansi}
-			case-parentheses = ${toString palette.colors.yellow.ansi}
-			case-condition = bg:${toString palette.colors.surface2.ansi}
+			case-input = #${palette.colors.green.hex}
+			case-parentheses = #${palette.colors.yellow.hex}
+			case-condition = bg:#${palette.colors.surface2.hex}
 		'';
 	} // fsh;
 }

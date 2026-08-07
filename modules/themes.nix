@@ -15,7 +15,7 @@ let
 	themes = [
 		(mkCatppuccinTheme {
 			variant = "mocha";
-			accent = { name = "mauve"; color = { hex = "cba6f7"; ansi = 183; }; };
+			accent = { name = "sapphire"; color = { hex = "74c7ec"; ansi = 117; }; };
 			opacity = { default = 1; unfocused = 0.85; shell = 0.95; };
 			icons = { name = "Papirus-Light"; packages = with pkgs; [ papirus-icon-theme ]; };
 		})
