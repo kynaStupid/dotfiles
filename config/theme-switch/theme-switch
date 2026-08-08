@@ -99,14 +99,14 @@ fi
 
 # zsh
 if [ -f "$dir/zsh-prompt.zsh" ]; then
-	cat "$dir/zsh-prompt.zsh" > "$ACTIVE_DIR/zsh-prompt.zsh"
+	ln -sfn "$dir/zsh-prompt.zsh" "$ACTIVE_DIR/zsh-prompt.zsh"
 fi
 
 if [ -f "$dir/fsh-theme.ini" ]; then
-	cat "$dir/fsh-theme.ini" > "$ACTIVE_DIR/fsh-theme.ini"
+	ln -sfn "$dir/fsh-theme.ini" "$ACTIVE_DIR/fsh-theme.ini"
 fi
 
-pkill -USR1 -x zsh 2>/dev/null || true
+pkill -USR2 -x zsh 2>/dev/null || true
 
 # --- waybar: no hot-reload for JSON side, but restart is cheap and near-instant ---
 # if pgrep -x waybar >/dev/null 2>&1; then
@@ -136,6 +136,13 @@ if [ -d "$NVIM_SOCK_DIR" ]; then
 			--remote-send '<Cmd>lua require("theme").apply()<CR>' \
 			>/dev/null 2>&1 || true
 	done
+fi
+
+if [ -f "$dir/btop-theme.theme" ]; then
+	ln -sfn "$dir/btop-theme.theme" "$ACTIVE_DIR/btop-theme.theme"
+	mkdir -p "$HOME/.config/btop/themes"
+	ln -sfn "$dir/btop-theme.theme" "$HOME/.config/btop/themes/pikt.theme"
+	pkill -USR2 -x btop 2>/dev/null || true
 fi
 
 echo "$name" > "$STATE_FILE"

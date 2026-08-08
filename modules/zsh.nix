@@ -60,7 +60,7 @@ in {
 			autoload -Uz colors && colors
 			setopt prompt_subst
 			[[ -f "${promptThemePath}" ]] && source "${promptThemePath}"
-			TRAPUSR1() {
+			TRAPUSR2() {
 				local prompt_theme="${promptThemePath}"
 				[[ -f "$prompt_theme" ]] && source "$prompt_theme"
 
