@@ -1,4 +1,4 @@
-{ config, pkgs, lib, themes, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
 
 let
 	mkAlacrittyToml = theme: pkgs.writeText "alacritty-theme-${theme.id}.toml" ''
@@ -43,7 +43,7 @@ let
 	'';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name = ".local/state/theme-switcher/themes/${theme.id}/alacritty-theme.toml";
+		name = "${themeSwitcher.dir}/themes/${theme.id}/alacritty-theme.toml";
 		value.source = mkAlacrittyToml theme;
 	}) themes);
 in {
@@ -76,7 +76,7 @@ in {
     	];
 
 			general.import = [
-				"${config.home.homeDirectory}/.local/state/theme-switcher/active/alacritty-theme.toml"
+				"${config.home.homeDirectory}/${themeSwitcher.dir}/active/alacritty-theme.toml"
 			];
 		};
   };

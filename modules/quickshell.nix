@@ -1,5 +1,5 @@
 # quickshell.nix
-{ config, pkgs, lib, themes, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
 
 let
 	mkThemeJson = theme: pkgs.writeText "quickshell-theme-${theme.id}.json" (builtins.toJSON {
@@ -35,7 +35,7 @@ let
 	});
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name  = ".local/state/theme-switcher/themes/${theme.id}/quickshell-theme.json";
+		name  = "${themeSwitcher.dir}/themes/${theme.id}/quickshell-theme.json";
 		value = { source = mkThemeJson theme; };
 	}) themes);
 in {
@@ -46,5 +46,6 @@ in {
 
 	xdg.configFile."quickshell".source = config.lib.file.mkOutOfStoreSymlink
 		"${config.home.homeDirectory}/dotfiles/config/quickshell";
+	xdg.configFile."quickshell-theme-path".text = "${config.home.homeDirectory}/${themeSwitcher.dir}/active/quickshell-theme.json";
 	home.file = themeFileEntries;
 }

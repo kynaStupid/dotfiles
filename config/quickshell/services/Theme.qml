@@ -4,9 +4,10 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../services"
 
 FileView {
-	path: Quickshell.env("HOME") + "/.local/state/theme-switcher/active/quickshell-theme.json"
+	path: ThemePath.themePath
 	watchChanges: true
 	onFileChanged: reload()
 

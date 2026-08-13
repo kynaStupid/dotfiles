@@ -1,5 +1,5 @@
 # mango.nix
-{ config, pkgs, lib, themes, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, ... }:
 
 let
 	argb = hex: alpha: "0x${hex}${alpha}";
@@ -30,13 +30,19 @@ animation_duration_move=${toString theme.animations.move.duration}
 animation_duration_tag=${toString theme.animations.move.duration}
 cursor_theme=${theme.cursor.name}
 cursor_size=${toString theme.cursor.size}
+
+overviewgappi=${toString theme.margin}
+overviewgappo=${toString theme.margin}
+scroller_structs=${toString (theme.margin + theme.border.width*2 + 2)}
 '';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name = ".local/state/theme-switcher/themes/${theme.id}/mango-theme.conf";
+		name = "${themeSwitcher.dir}/themes/${theme.id}/mango-theme.conf";
 		value.source = mkMangoConf theme;
 	}) themes);
 in {
-	xdg.configFile."mango".source = ../config/mango;
+	xdg.configFile."mango/config.conf".source = pkgs.replaceVars ../config/mango/config.conf {
+		THEME_SWITCHER_ROOT = "${config.home.homeDirectory}/${themeSwitcher.dir}";
+	};
 	home.file = themeFileEntries;
 }

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, themes, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
 
 let
 	mkZshPrompt = theme: pkgs.writeText "zsh-prompt-${theme.id}.zsh" ''
@@ -8,11 +8,11 @@ let
 		) %# '
 	'';
 
-	promptThemePath = "$HOME/.local/state/theme-switcher/active/zsh-prompt.zsh";
-	fshThemePath = "$HOME/.local/state/theme-switcher/active/fsh-theme.ini";
+	promptThemePath = "$HOME/.local/state/pikt/active/zsh-prompt.zsh";
+	fshThemePath = "$HOME/.local/state/pikt/active/fsh-theme.ini";
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name = ".local/state/theme-switcher/themes/${theme.id}/zsh-prompt.zsh";
+		name = ".local/state/pikt/themes/${theme.id}/zsh-prompt.zsh";
 		value.source = mkZshPrompt theme;
 	}) themes)
 	//

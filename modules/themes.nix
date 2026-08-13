@@ -1,5 +1,5 @@
 # themes.nix
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, themeSwitcher, ... }:
 
 let
 	mkTheme = import ../lib/mkTheme.nix { inherit pkgs lib; };
@@ -26,8 +26,6 @@ let
 			icons = { name = "Papirus-Dark"; packages = with pkgs; [ papirus-icon-theme ]; };
 		})
 	];
-
-	theme = builtins.head themes;
 in {
 	_module.args.themes = themes;
 
@@ -41,15 +39,18 @@ in {
 	home.file = lib.listToAttrs (
 		# meta.json
 		(map (theme: {
-			name = ".local/state/theme-switcher/themes/${theme.id}/meta.json";
+			name = "${themeSwitcher.dir}/themes/${theme.id}/meta.json";
 			value.source = pkgs.writeText "meta-${theme.id}.json" (builtins.toJSON {
+				dark = theme.dark;
 				gtk = { name = theme.gtk.name; };
 				qt = { name = theme.qt.name; };
 				icons = { name = theme.icons.name; };
 				cursor = { name = theme.cursor.name; size = theme.cursor.size; };
+				font = { name = theme.font.name; size = theme.font.size; };
 				fsh = { name = theme.fsh.name; };
 			});
-		}) themes) ++
+		}) themes)
+		++
 
 		# cursors
 		(map (theme: {

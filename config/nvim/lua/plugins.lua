@@ -37,7 +37,7 @@ local plugins = {
 	{ "kylechui/nvim-surround", }, -- surround
 }
 
-local theme_dir = vim.env.HOME .. "/.local/state/theme-switcher/nvim/plugins"
+local theme_dir = "@THEME_SWITCHER_ROOT@/nvim/plugins"
 if vim.fn.isdirectory(theme_dir) == 1 then
 	for _, file in ipairs(vim.fn.readdir(theme_dir)) do
 		if file:match("%.lua$") then

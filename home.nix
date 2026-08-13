@@ -13,8 +13,8 @@ in {
 
   imports = [
   	./modules/packages.nix
+		./modules/theme-switcher.nix
 		./modules/themes.nix
-		./modules/theme-switch.nix
 		./modules/zsh.nix
 		./modules/labwc.nix
 		./modules/mango.nix

@@ -1,5 +1,5 @@
 # btop.nix
-{ config, pkgs, lib, themes, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, ... }:
 
 let
 	mkBtopTheme = theme: pkgs.writeText "btop-theme-${theme.id}.theme" ''
@@ -55,7 +55,7 @@ let
 	'';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
-		name = ".local/state/theme-switcher/themes/${theme.id}/btop-theme.theme";
+		name = "${themeSwitcher.dir}/themes/${theme.id}/btop-theme.theme";
 		value.source = mkBtopTheme theme;
 	}) themes);
 in {
