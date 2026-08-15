@@ -1,40 +1,23 @@
-{ config, pkgs, lib, themes, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
 
 let
-	inherit (config.lib.formats.rasi) mkLiteral;
+	rofiConfig = pkgs.runCommand "rofi-config" {} ''
+		cp -r ${../config/rofi} "$out"
+
+		substituteInPlace $(find "$out" -type f) \
+			--replace-warn \
+				"@THEME_SWITCHER_ROOT@" \
+				"${config.home.homeDirectory}/${themeSwitcher.dir}"
+	'';
+
+	themeFileEntries = lib.listToAttrs (map (theme: {
+		name = "${themeSwitcher.dir}/themes/${theme.id}/rofi-theme.rasi";
+		value.source = pkgs.writeText "${theme.id}-rofi-theme.rasi"
+			theme.rofi.config;
+	}) themes);
 in {
-	programs.rofi = {
-		enable = true;
+	programs.rofi.enable = true;
 
-		extraConfig = {
-    		modi = "combi,drun,run,window";
-    		combi-modi = "drun,run";
-    		show-icons = true;
-  		};
-
-		theme = {
-			"*" = {
-				# font = "${theme.font.name} ${toString theme.font.size}";
-				# background-color = mkLiteral "#${theme.colors.base.hex}";
-				# foreground-color = mkLiteral "#${theme.colors.text.hex}";
-			};
-
-			"#inputbar" = {
-				children = map mkLiteral [
-					"prompt"
-					"entry"
-				];
-			};
-
-			window = {
-				width = 700;
-
-				# border = theme.border.width;
-				# border-radius = theme.border.radius;
-				# border-color = mkLiteral "#${theme.colors.mauve.hex}";
-
-				# padding = theme.margin;
-			};
-		};
-	};
+	xdg.configFile."rofi".source = rofiConfig;
+	home.file = themeFileEntries;
 }

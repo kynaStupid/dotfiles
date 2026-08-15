@@ -17,6 +17,7 @@ in {
 	animations? { focus = { duration = 300; }; morph = { duration = 350; }; move = { duration = 350; }; },
 	extra? {},
 	nvim? {},
+	rofi? {},
 	fsh? {},
 }:
 
@@ -55,6 +56,225 @@ in mkTheme {
 			vim.cmd.colorscheme("catppuccin-nvim")
 		'';
 	} // nvim;
+
+	rofi = {
+		config = ''
+			configuration {
+				display-combi:              "";
+				display-filebrowser:        "";
+				display-window:             "";
+				show-icons:                 true;
+				drun-display-format:        "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+				combi-hide-mode-prefix:     true;
+				window-format:              "{w} · {c} · {t}";
+				separator-style:            none;
+			}
+
+			* {
+				colors-background:          #${palette.colors.base.hex};
+				colors-background-alt:      #${palette.colors.surface0.hex};
+				colors-background-active:   #${palette.colors.surface1.hex};
+
+				colors-foreground:          #${palette.colors.text.hex};
+				colors-foreground-alt:      #${palette.colors.subtext0.hex};
+				
+				colors-selected:            #${accent.color.hex};
+				colors-selected-fg:         #${palette.colors.crust.hex};
+
+				colors-border:              #${accent.color.hex};
+				colors-handle:              #${palette.colors.overlay1.hex};
+
+				colors-urgent:              #${palette.colors.red.hex};
+				colors-active:              #${accent.color.hex};
+
+				spacing:                    0px;
+				margin:                     0px;
+				padding:                    0px;
+				border:                     0px solid;
+				border-radius:              0px 0px 0px 0px;
+				background-color:           transparent;
+			}
+
+			window {
+				transparency:               "real";
+				location:                   center;
+				anchor:                     center;
+				fullscreen:                 false;
+				width:                      600px;
+				x-offset:                   0px;
+				y-offset:                   0px;
+
+				enabled:                    true;
+				border:                     ${toString border.width}px solid;
+				border-radius:              ${toString border.radius}px;
+				border-color:               @colors-border;
+				cursor:                     "default";
+				background-color:           @colors-background;
+			}
+
+			mainbox {
+				enabled:                    true;
+				spacing:                    ${toString spacing}px;
+				padding:                    ${toString margin}px;
+				border-color:               @colors-border;
+				children:                   [ "inputbar", "message", "listview", "mode-switcher" ];
+			}
+
+			inputbar {
+				enabled:                    true;
+				spacing:                    ${toString spacing}px;
+				padding:                    ${toString margin}px;
+				border-radius:              ${toString border.radius}px;
+				border-color:               @colors-border;
+				background-color:           @colors-background-alt;
+				text-color:                 @colors-foreground;
+				children:                   [ "prompt", "entry" ];
+			}
+
+			prompt {
+				enabled:                    true;
+				background-color:           inherit;
+				text-color:                 inherit;
+				padding: 0px 6px 0px 0px;
+			}
+			entry {
+				enabled:                    true;
+				background-color:           inherit;
+				text-color:                 inherit;
+				cursor:                     text;
+				placeholder:                "";
+				placeholder-color:          inherit;
+			}
+
+			listview {
+				enabled:                    true;
+				columns:                    2;
+				lines:                      10;
+				cycle:                      true;
+				dynamic:                    true;
+				scrollbar:                  false;
+				layout:                     vertical;
+				reverse:                    false;
+				fixed-height:               false;
+				fixed-columns:              false;
+
+				border-color:               @colors-border;
+				text-color:                 @colors-foreground;
+				cursor:                     "default";
+			}
+			scrollbar {
+				handle-width:               ${toString margin}px;
+				handle-color:               @colors-handle;
+				background-color:           @colors-background-alt;
+			}
+
+			element {
+				enabled:                    true;
+				spacing:                    ${toString spacing}px;
+				padding:                    ${toString margin}px;
+				border-radius:              ${toString border.radius}px;
+				border-color:               @colors-border;
+				background-color:           transparent;
+				text-color:                 @colors-foreground;
+				cursor:                     pointer;
+			}
+			element normal.normal {
+				background-color:           @colors-background;
+				text-color:                 @colors-foreground;
+			}
+			element normal.urgent {
+				background-color:           @colors-urgent;
+				text-color:                 @colors-selected-fg;
+			}
+			element normal.active {
+				background-color:           @colors-background-active;
+				text-color:                 @colors-foreground;
+			}
+			element selected.normal {
+				background-color:           @colors-selected;
+				text-color:                 @colors-selected-fg;
+			}
+			element selected.urgent {
+				background-color:           @colors-urgent;
+				text-color:                 @colors-selected-fg;
+			}
+			element selected.active {
+				background-color:           @colors-selected;
+				text-color:                 @colors-selected-fg;
+			}
+			element alternate.normal {
+				background-color:           @colors-background-alt;
+				text-color:                 @colors-foreground;
+			}
+			element alternate.urgent {
+				background-color:           @colors-urgent;
+				text-color:                 @colors-selected-fg;
+			}
+			element alternate.active {
+				background-color:           @colors-background-active;
+				text-color:                 @colors-foreground;
+			}
+			element-icon {
+				background-color:           transparent;
+				text-color:                 inherit;
+				size:                       32px;
+				cursor:                     inherit;
+			}
+			element-text {
+				background-color:           transparent;
+				text-color:                 inherit;
+				highlight:                  inherit;
+				cursor:                     inherit;
+				vertical-align:             0.5;
+				horizontal-align:           0.0;
+			}
+
+			mode-switcher{
+				enabled:                    true;
+				spacing:                    ${toString spacing};
+				border-color:               @colors-border;
+				background-color:           transparent;
+				text-color:                 @colors-foreground;
+			}
+			button {
+				padding:                    ${toString margin};
+				border-radius:              ${toString border.radius}px;
+				border-color:               @colors-border;
+				background-color:           @colors-background-alt;
+				text-color:                 inherit;
+				cursor:                     pointer;
+			}
+			button selected {
+				background-color:           @colors-background-active;
+				text-color:                 @colors-foreground;
+			}
+
+			message {
+				enabled:                    true;
+				border-color:               @colors-border;
+				background-color:           transparent;
+				text-color:                 @colors-foreground;
+			}
+			textbox {
+				padding:                    ${toString margin}px;
+				border-color:               @colors-border;
+				background-color:           @colors-background-alt;
+				text-color:                 @colors-foreground;
+				vertical-align:             0.5;
+				horizontal-align:           0.0;
+				highlight:                  none;
+				placeholder-color:          @colors-foreground;
+				blink:                      true;
+				markup:                     true;
+			}
+			error-message {
+				padding:                    ${toString margin}px;
+				border-color:               @colors-border;
+				background-color:           @colors-background;
+				text-color:                 @colors-foreground;
+			}
+		'';
+	} // rofi;
 
 	fsh = {
 		name = "catppuccin-${variant}-${accent.name}";

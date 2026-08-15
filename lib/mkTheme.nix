@@ -10,6 +10,7 @@
 	animations,
 	extra? {},
 	nvim,
+	rofi,
 	fsh,
 }:
 
@@ -23,5 +24,6 @@
 	animations
 	extra
 	nvim
+	rofi
 	fsh
 ; }

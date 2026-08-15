@@ -101,6 +101,11 @@ if [ -f "$dir/quickshell-theme.json" ]; then
 	(quickshell kill >/dev/null && quickshell >/dev/null 2>&1 &) || echo "warn: quickshell restart failed" >&2
 fi
 
+# rofi
+if [ -f "$dir/rofi-theme.rasi" ]; then
+	ln -sfn "$dir/rofi-theme.rasi" "$ACTIVE_DIR/rofi-theme.rasi"
+fi
+
 # alacritty
 if [ -f "$dir/alacritty-theme.toml" ]; then
 	cat "$dir/alacritty-theme.toml" > "$ACTIVE_DIR/alacritty-theme.toml"
@@ -153,8 +158,6 @@ if [ -f "$dir/btop-theme.theme" ]; then
 	ln -sfn "$dir/btop-theme.theme" "$HOME/.config/btop/themes/pikt.theme"
 	pkill -USR2 -x btop 2>/dev/null || true
 fi
-
-echo "GIO_EXTRA_MODULES=$GIO_EXTRA_MODULES" >&2
 
 echo "$name" > "$STATE_FILE"
 echo "switched to $name"

@@ -2,6 +2,15 @@
 { config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
 
 let
+	nvimConfig = pkgs.runCommand "nvim-config" {} ''
+		cp -r ${../config/nvim} "$out"
+
+		substituteInPlace $(find "$out" -type f) \
+			--replace-warn \
+				"@THEME_SWITCHER_ROOT@" \
+				"${config.home.homeDirectory}/${themeSwitcher.dir}"
+	'';
+
 	themeFileEntries = lib.listToAttrs (lib.unique (map (theme: {
 		name = "${themeSwitcher.dir}/nvim/plugins/${theme.nvim.type}.lua";
 		value.source = pkgs.writeText "${theme.nvim.type}-theme.lua" ''
@@ -14,15 +23,6 @@ let
 		value.source = pkgs.writeText "${theme.id}-nvim-theme.lua"
 			theme.nvim.config;
 	}) themes);
-
-	nvimConfig = pkgs.runCommand "nvim-config" {} ''
-		cp -r ${../config/nvim} "$out"
-
-		substituteInPlace $(find "$out" -type f) \
-			--replace-warn \
-				"@THEME_SWITCHER_ROOT@" \
-				"${config.home.homeDirectory}/${themeSwitcher.dir}"
-	'';
 in {
 	programs.neovim = {
 		enable = true;

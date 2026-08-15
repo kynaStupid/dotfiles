@@ -1,0 +1,17 @@
+// rofi/config.rasi
+configuration {
+	modi:            "combi,filebrowser";
+	combi-modi:      "drun,run";
+
+	matching:        "fuzzy";
+	case-sensitiveL: false;
+
+	hover-select:    true;
+	auto-select:     false;
+
+	steal-focus:     true;
+	disable-history: true;
+	sort:            true;
+}
+
+@import "@THEME_SWITCHER_ROOT@/active/rofi-theme.rasi"
