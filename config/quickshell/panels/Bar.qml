@@ -138,10 +138,10 @@ PanelWindow {
 			anchors.left: parent.left
 
 			width: Globals.taskBarVisible?
-				Math.min(maxWidth, taskBarColumn.implicitWidth + Theme.barMargin*2):
+				Math.min(maxWidth, taskBarColumn.implicitWidth > 0? taskBarColumn.implicitWidth + Theme.barMargin*2: 0):
 				0
 			height: Globals.taskBarVisible?
-				Math.min(maxHeight, taskBarColumn.implicitHeight + Theme.barMargin*2):
+				Math.min(maxHeight, taskBarColumn.implicitHeight > 0? taskBarColumn.implicitHeight + Theme.barMargin*2: 0):
 				0
 			readonly property real maxWidth: 500
 			readonly property real maxHeight: 500
