@@ -65,15 +65,15 @@ mkdir -p "$ACTIVE_DIR"
 
 # gtk / icons / cursor
 if [[ "$dark" == "true" ]]; then
-	gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" #2>/dev/null || true
+	gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" 2>/dev/null || true
 else
-	gsettings set org.gnome.desktop.interface color-scheme "prefer-light" #2>/dev/null || true
+	gsettings set org.gnome.desktop.interface color-scheme "prefer-light" 2>/dev/null || true
 fi
-gsettings set org.gnome.desktop.interface gtk-theme "$gtk_name" #2>/dev/null || true
-gsettings set org.gnome.desktop.interface icon-theme "$icon_name" #2>/dev/null || true
-gsettings set org.gnome.desktop.interface cursor-theme "$cursor_name" #2>/dev/null || true
-gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" #2>/dev/null || true
-gsettings set org.gnome.desktop.interface font-name "$font_name $font_size" #2>/dev/null || true
+gsettings set org.gnome.desktop.interface gtk-theme "$gtk_name" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface icon-theme "$icon_name" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface cursor-theme "$cursor_name" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" 2>/dev/null || true
+gsettings set org.gnome.desktop.interface font-name "$font_name $font_size" 2>/dev/null || true
 
 mkdir -p ~/.icons/default
 

@@ -10,7 +10,7 @@ import "../widgets"
 PanelWindow {
 	id: bar
 
-	WlrLayershell.layer: WlrLayer.Overlay
+	WlrLayershell.layer: WlrLayer.Top
 
 	anchors.top: true
 	anchors.left: true

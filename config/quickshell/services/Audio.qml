@@ -1,9 +1,4 @@
 // services/Audio.qml
-// IMPORTANT: PwObjectTracker is required here. Pipewire nodes are created
-// and destroyed dynamically as hardware/streams come and go; without
-// tracking them explicitly, the sink/source objects can be garbage
-// collected out from under you and volume/mute bindings silently stop
-// updating. See: https://github.com/quickshell-mirror/quickshell/issues/54
 pragma Singleton
 
 import QtQuick

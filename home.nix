@@ -27,6 +27,7 @@ in {
 		./modules/yazi.nix
 		./modules/nvim.nix
 		./modules/thunar.nix
+		./modules/qutebrowser.nix
 		./modules/vlc.nix
 		./modules/flameshot.nix
 		./modules/obs.nix

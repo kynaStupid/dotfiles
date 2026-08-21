@@ -44,8 +44,9 @@ in {
 		quickshell
 	] else []);
 
-	xdg.configFile."quickshell".source = config.lib.file.mkOutOfStoreSymlink
-		"${config.home.homeDirectory}/dotfiles/config/quickshell";
+	xdg.configFile."quickshell".source =
+		config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/config/quickshell";
+		#../config/quickshell;
 	xdg.configFile."quickshell-theme-path".text = "${config.home.homeDirectory}/${themeSwitcher.dir}/active/quickshell-theme.json";
 	home.file = themeFileEntries;
 }
