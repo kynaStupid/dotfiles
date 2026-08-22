@@ -35,7 +35,7 @@ config.bind("/", "cmd-set-text /")
 config.bind("?", "cmd-set-text ?")
 config.bind(":", "cmd-set-text :")
 
-config.bind(f"{leader}o", "cmd-set-text -s :open")
+config.bind(f"o", "cmd-set-text -s :open")
 
 config.bind(f"{leader}f", "forward")
 config.bind(f"{leader}b", "back")
@@ -43,7 +43,7 @@ config.bind(f"{leader}b", "back")
 config.bind(f"{leader}r", "reload")
 config.bind(f"{leader}R", "reload -f")
 
-config.bind(f"{leader}q", "tab-close")
+config.bind(f"q", "tab-close")
 config.bind("z", "undo")
 config.bind("Z", "undo -w")
 
@@ -58,6 +58,7 @@ config.bind(f"<Shift-{mark}>", "bookmark-add")
 config.bind(f"{leader}<Shift-{mark}>", "cmd-set-text -s :bookmark-load")
 
 config.bind(f"{hint}", "hint")
+config.bind(f"<Shift-{hint}>", "hint --rapid")
 config.bind(f"{copy}{hint}", "hint links yank")
 config.bind(f"<Shift-{copy}>{hint}", "hint links yank-primary")
 
@@ -117,6 +118,7 @@ config.bind(f"{tab}{mark}", "cmd-set-text -s :quickmark-load -t")
 config.bind(f"{tab}<Shift-{mark}>", "cmd-set-text -s :bookmark-load -t")
 
 config.bind(f"{tab}{hint}", "hint all tab")
+config.bind(f"{tab}<Shift-{hint}>", "hint --rapid all tab")
 
 # window
 
@@ -135,6 +137,7 @@ config.bind(f"{window}{mark}", "cmd-set-text -s :quickmark-load -w")
 config.bind(f"{window}<Shift-{mark}>", "cmd-set-text -s :bookmark-load -w")
 
 config.bind(f"{window}{hint}", "hint all window")
+config.bind(f"{window}<Shift-{hint}>", "hint --rapid all window")
 
 # setting
 
@@ -247,10 +250,26 @@ config.bind("Y", "prompt-accept --save yes", mode="yesno")
 config.bind("N", "prompt-accept --save no", mode="yesno")
 
 # Behaviour
+
+homepage = "about:blank"
+
 # preferences
 
 config.load_autoconfig(False)
+
+c.url.default_page = homepage
+c.url.start_pages = [ homepage ]
+
 c.content.autoplay = False
+
+c.tabs.background = True
+c.tabs.close_mouse_button = "middle"
+c.tabs.close_mouse_button_on_bar = "new-tab"
+c.tabs.last_close = "default-page"
+c.tabs.max_width = -1
+c.tabs.min_width = -1
+c.tabs.mode_on_change = "normal"
+c.tabs.mousewheel_switching = True
 
 # saving
 
@@ -261,6 +280,7 @@ c.content.cookies.store = True
 
 c.url.searchengines = {
     "DEFAULT": "https://www.startpage.com/sp/search?query={}",
+    "yt": "https://youtube.com/search?q={}",
     "gh": "https://github.com/search?q={}",
     "cpp": "https://en.cppreference.com/mwiki/index.php?search={}",
 }
@@ -295,9 +315,13 @@ c.content.pdfjs = True
 # Appearance
 # statusbar
 
-c.statusbar.show = "in-mode"
+c.statusbar.position = "bottom"
+c.statusbar.show = "always"
+
 c.completion.height = "60%"
 
 # tabs
 
+c.tabs.show = "multiple"
 c.tabs.position = "left"
+c.tabs.width = 52

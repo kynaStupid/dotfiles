@@ -1,7 +1,7 @@
 -- keymaps.lua
 local map = vim.keymap.set
 
--- lleader
+-- leader
 vim.g.mapleader = " "
 
 -- save & quit
@@ -20,7 +20,10 @@ map("n", "a", "h") -- left
 map("n", "s", "j") -- down
 map("n", "d", "l") -- right
 map("n", "f", "w") -- jump word
+--b is back a word
+map("n", "W", "gg") -- start of file
 map("n", "A", "0") -- start of line
+map("n", "S", "G") -- end of file
 map("n", "D", "$") -- end of line
 map("n", "B", "^") -- first non-whitespace in line
 map("n", "F", "g_") -- last non-whitespace in line
@@ -45,6 +48,7 @@ map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 -- surround
 map("n", "js", "<Plug>(nvim-surround-normal)")
+map("x", "js", "<Plug>(nvim-surround-visual)")
 map("n", "ks", "<Plug>(nvim-surround-delete)")
 map("n", "ls", "<Plug>(nvim-surround-change)")
 
@@ -66,11 +70,12 @@ map("v", "a", "h") -- left
 map("v", "s", "j") -- down
 map("v", "d", "l") -- right
 map("v", "f", "w") -- jump word
-map("v", "F", "W") -- jump to next whitespace
-map("v", "<A-a>", "0") -- start of line
-map("v", "<A-d>", "$") -- end of line
-map("v", "<A-b>", "^") -- first non-whitespace in line
-map("v", "<A-f>", "g_") -- last non-whitespace in line
+map("v", "W", "gg") -- start of file
+map("v", "A", "0") -- start of line
+map("v", "S", "G") -- end of file
+map("v", "D", "$") -- end of line
+map("v", "F", "g_") -- last non-whitespace in line
+map("v", "B", "^") -- first non-whitespace in line
 
 -- v mode actions
 map("v", "<C-w>", "<cmd>m '<-2<CR>gv=gv") -- move lines up
