@@ -17,7 +17,7 @@ QtObject {
 	}
 	function barExit() {
 		barHoverCount--
-		updateWidgetsVisible()
+		Qt.callLater(updateWidgetsVisible)
 	}
 
 	property bool taskBarVisible: false

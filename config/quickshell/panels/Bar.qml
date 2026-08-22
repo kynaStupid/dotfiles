@@ -246,8 +246,6 @@ PanelWindow {
 										}
 									}
 									hoverEnabled: true
-									onEntered: Globals.barEnter()
-									onExited: Globals.barExit()
 								}
 							}
 						}
