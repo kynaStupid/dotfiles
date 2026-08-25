@@ -1,5 +1,5 @@
 # nvim.nix
-{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, ... }:
 
 let
 	nvimConfig = pkgs.runCommand "nvim-config" {} ''

@@ -1,8 +1,8 @@
-{ config, pkgs, lib, isNixOS, ... }:
+{ config, pkgs, lib, OS, ... }:
 
 {
   home.packages = with pkgs; []
-  ++ (if isNixOS then [
+  ++ (if OS == "nix" then [
     flameshot
   ] else []);
   

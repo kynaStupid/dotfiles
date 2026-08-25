@@ -9,9 +9,10 @@
 	margin, spacing,
 	animations,
 	extra? {},
-	nvim,
-	rofi,
 	fsh,
+	rofi,
+	nvim,
+	qutebrowser,
 }:
 
 { inherit
@@ -23,7 +24,8 @@
 	margin spacing
 	animations
 	extra
-	nvim
-	rofi
 	fsh
+	rofi
+	nvim
+	qutebrowser
 ; }

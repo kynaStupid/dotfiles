@@ -1,4 +1,4 @@
-{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, OS, ... }:
 
 let
 	mkAlacrittyToml = theme: pkgs.writeText "alacritty-theme-${theme.id}.toml" ''
@@ -49,7 +49,7 @@ let
 in {
   programs.alacritty = {
     enable = true;
-    package = if isNixOS then pkgs.alacritty else null;
+    package = if OS == "nix" then pkgs.alacritty else null;
 		settings = {
 	  	window = {
         decorations = "None";

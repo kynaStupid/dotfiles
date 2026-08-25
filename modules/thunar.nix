@@ -1,4 +1,4 @@
-{ config, pkgs, lib, isNixOS, ... }:
+{ config, pkgs, lib, OS, ... }:
 
 {
   home.packages = with pkgs; [

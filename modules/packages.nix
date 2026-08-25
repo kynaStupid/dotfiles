@@ -1,10 +1,10 @@
-{ pkgs, isNixOS, ... }:
+{ pkgs, OS, ... }:
 
 {
 	home.packages = with pkgs; [
 		fastfetch
 	]
-	++ (if isNixOS then [
+	++ (if OS == "nix" then [
 		github-desktop
 		steam
 	] else []);

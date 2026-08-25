@@ -1,4 +1,4 @@
-{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, ... }:
 
 let
 	rofiConfig = pkgs.runCommand "rofi-config" {} ''

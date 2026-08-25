@@ -257,24 +257,49 @@ homepage = "about:blank"
 
 config.load_autoconfig(False)
 
+c.confirm_quit = [ "never" ]
+
 c.url.default_page = homepage
 c.url.start_pages = [ homepage ]
 
+c.completion.show = "always"
+c.completion.min_chars = 1
+c.completion.delay = 0
+
+c.completion.quick = True
+c.completion.open_categories = [ "quickmarks", "bookmarks", "searchengines", "history", ]
+c.completion.web_history.max_items = -1
+
+c.content.mute = False
 c.content.autoplay = False
+
+c.content.notifications.presenter = "auto"
+c.content.notifications.show_origin = True
 
 c.tabs.background = True
 c.tabs.close_mouse_button = "middle"
 c.tabs.close_mouse_button_on_bar = "new-tab"
 c.tabs.last_close = "default-page"
-c.tabs.max_width = -1
-c.tabs.min_width = -1
+
+c.tabs.focus_stack_size = 9
 c.tabs.mode_on_change = "normal"
 c.tabs.mousewheel_switching = True
 
-# saving
+c.tabs.new_position.related = "next"
+c.tabs.new_position.stacking = False
+c.tabs.new_position.unrelated = "last"
 
-c.content.private_browsing = False
-c.content.cookies.store = True
+c.tabs.select_on_remove = "next"
+
+c.tabs.wrap = True
+
+c.downloads.open_dispatcher = None
+c.downloads.prevent_mixed_content = True
+c.downloads.remove_finished = 300_000
+c.downloads.location.directory = "~/Downloads"
+c.downloads.location.prompt = False
+c.downloads.location.remember = False
+c.downloads.location.suggestion = "path"
 
 # search engine
 
@@ -285,18 +310,61 @@ c.url.searchengines = {
     "cpp": "https://en.cppreference.com/mwiki/index.php?search={}",
 }
 
+# saving
+
+c.completion.cmd_history_max_items = 0
+
+c.tabs.undo_stack_size = 100
+
+c.auto_save.interval = 20_000
+c.auto_save.session = False
+
+c.content.private_browsing = False
+c.content.cookies.store = True
+c.content.persistent_storage = "ask"
+
 # permissions
 
+c.content.proxy = "system"
+c.content.proxy_dns_requests = True
+
 c.content.javascript.enabled = True
+c.content.javascript.prompt = True
+c.content.javascript.alert = True
+c.content.javascript.can_close_tabs = False
+c.content.javascript.can_open_tabs_automatically = False
+c.content.javascript.clipboard = "ask"
+c.content.javascript.legacy_touch_events = "never"
+c.content.javascript.modal_dialog = False
+
+c.content.local_storage = True
+c.content.local_content_can_access_file_urls = True
+c.content.local_content_can_access_remote_urls = False
+
+c.content.media.audio_capture = "ask"
+c.content.media.video_capture = "ask"
+c.content.media.audio_video_capture = "ask"
+
+c.content.mouse_lock = "ask"
+
+c.content.register_protocol_handler = "ask"
+
+c.content.site_specific_quirks.enabled = True
+
+c.content.xss_auditing = False
+
+c.content.notifications.enabled = False
 
 c.content.cookies.accept = "no-3rdparty"
 
+c.content.blocking.enabled = True
 c.content.blocking.adblock.lists = [
     'https://easylist.to/easylist/easylist.txt',
     'https://easylist.to/easylist/easyprivacy.txt',
 ]
 c.content.blocking.method = "both"
 
+c.content.headers.accept_language = "en-UK,en;q=0.9"
 c.content.headers.referer = "same-domain"
 c.content.headers.do_not_track = True
 
@@ -306,22 +374,30 @@ c.content.desktop_capture = False
 
 c.content.webrtc_ip_handling_policy = "default-public-interface-only"
 
+# performance
+
+c.backend = "webengine"
+
+c.content.webgl = True
+
+c.content.cache.appcache = True
+c.content.cache.maximum_pages = 0
+c.content.cache.size = None
+c.content.canvas_reading = True
+
+c.content.default_encoding = "iso-8859-1"
+
+c.content.dns_prefetch = True
+
 # external
 
 c.editor.command = [ "nvim", "{file}" ]
+c.editor.encoding = "utf-8"
+c.editor.remove_file = True
 
 c.content.pdfjs = True
 
-# Appearance
-# statusbar
+# Theme
 
-c.statusbar.position = "bottom"
-c.statusbar.show = "always"
-
-c.completion.height = "60%"
-
-# tabs
-
-c.tabs.show = "multiple"
-c.tabs.position = "left"
-c.tabs.width = 52
+with open("@THEME_SWITCHER_ROOT@/active/qutebrowser-theme.py") as f:
+    exec(f.read())

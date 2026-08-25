@@ -9,14 +9,26 @@
 		};
 	};
 
-	outputs = { nixpkgs, home-manager, /*catppuccin,*/ ... }: {
+	outputs = { nixpkgs, home-manager, ... }: {
 		homeConfigurations = {
+			void = home-manager.lib.homeManagerConfiguration {
+				pkgs = import nixpkgs {
+					system = "x86_64-linux";
+				};
+
+				extraSpecialArgs = { OS = "void"; };
+
+				modules = [
+					./home.nix
+				];
+			};
+
 			arch = home-manager.lib.homeManagerConfiguration {
 				pkgs = import nixpkgs {
 					system = "x86_64-linux";
 				};
 
-				extraSpecialArgs = { isNixOS = false; };
+				extraSpecialArgs = { OS = "arch"; };
 
 				modules = [
 					./home.nix
@@ -28,7 +40,7 @@
 					system = "x86_64-linux";
 				};
 
-				extraSpecialArgs = { isNixOS = true; };
+				extraSpecialArgs = { OS = "nix"; };
 
 				modules = [
 					./home.nix

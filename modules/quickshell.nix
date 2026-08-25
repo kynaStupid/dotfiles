@@ -1,5 +1,5 @@
 # quickshell.nix
-{ config, pkgs, lib, themes, themeSwitcher, isNixOS, ... }:
+{ config, pkgs, lib, themes, themeSwitcher, OS, ... }:
 
 let
 	mkThemeJson = theme: pkgs.writeText "quickshell-theme-${theme.id}.json" (builtins.toJSON {
@@ -40,7 +40,7 @@ let
 	}) themes);
 in {
 	home.packages = with pkgs; []
-	++ (if isNixOS then [
+	++ (if OS == "nix" then [
 		quickshell
 	] else []);
 

@@ -1,6 +1,21 @@
 # dotfiles
 i use arch btw
 
+### prerequesites:
+nix,
+gtk3 / gtk4,
+qt5 / qt6, qt6-qt5compat
+zsh,
+labwc,
+mango,
+quickshell,
+alacritty,
+qutebrowser,
+flameshot,
+obs-studio,
+dorion,
+libreoffice
+
 ### includes:
 nix flake\
     fastfetch\
@@ -20,11 +35,16 @@ nix flake\
     yazi\
     neovim\
     thunar\
+    qutebrowser\
     vlc\
     flameshot config\
     obs studio config\
     dorion config\
     libreoffice config
+
+### themes
+
+themes are defined in `modules/themes.nix`
 
 #### theme switcher
 
@@ -33,7 +53,7 @@ comes with a theme switcher with hot reloading
 currently supported builtin themes:\
     catppuccin
 
-use `theme-switch` to switch themes
+use `pikt` to switch themes
 
 integrations:\
     gtk, icons, cursor\
@@ -43,7 +63,9 @@ integrations:\
     quickshell, hot reloading via file watcher and dynamically written json\
 
 ## notes
-stuff with only the configs mentioned are expected to be installed on the system\
-(unless on nixOS)
+disable modules or not install some prerequesites if you'd like
 
-the `theme-switch` bash script soft-fails
+the `pikt` bash script soft-fails
+
+you can rename the theme switcher in modules/theme-switcher.nix\
+renaming it after running it under a previous name would result in residue in ~/.local/state/{old name}/
