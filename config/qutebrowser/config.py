@@ -391,6 +391,10 @@ c.content.dns_prefetch = True
 
 # external
 
+c.qt.args = [
+    "widevine-path=/usr/lib/widevine/WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so"
+]
+
 c.editor.command = [ "nvim", "{file}" ]
 c.editor.encoding = "utf-8"
 c.editor.remove_file = True

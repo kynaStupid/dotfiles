@@ -7,6 +7,5 @@
     thunar-archive-plugin
     tumbler
 		gvfs
-		udiskie
   ];
 }
