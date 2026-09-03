@@ -516,7 +516,7 @@ c.colors.downloads.error.bg = "rgba(${rgba palette.colors.red.hex opacity.defaul
 c.colors.downloads.error.fg = "rgba(${rgba palette.colors.base.hex opacity.default})"
 
 # webpage
-c.colors.webpage.bg = "transparent"
+c.colors.webpage.bg = "rgba(${rgba palette.colors.base.hex 1})"
 c.colors.webpage.preferred_color_scheme = "${if palette.dark then "dark" else "light"}"
 		'';
 	} // qutebrowser;
