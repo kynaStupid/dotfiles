@@ -1,0 +1,140 @@
+#!/bin/sh
+# qb-userscript-update
+#
+# Fetches/refreshes qutebrowser greasemonkey userscripts declared as
+# small config files under sources.d/*.conf -- adding a userscript is
+# "drop a file in sources.d/", not editing a central list. Same shape
+# as xbps-src-update's packages.d/*.conf.
+#
+# Filter lists (easylist etc.) are NOT handled here -- those are just
+# set directly as c.content.blocking.adblock.lists in config.py, since
+# qutebrowser fetches/compiles them itself via :adblock-update.
+#
+# Usage:
+#   ./userScripts-update                     # check + update everything in sources.d/
+#   ./userScripts-update -only ytadblock     # just one source
+#   ./userScripts-update -check-only         # validate sources.d, skip fetches
+#   ./userScripts-update -force              # re-fetch even if hash unchanged
+#
+# Env:
+#   GREASEMONKEY_DIR    where fetched userscripts are written
+#                       (default: ./greasemonkey)
+#   SOURCES_DIR         path to userScripts.d
+#                       (default: ./userScripts.d next to this script)
+#   LOCKFILE            path to lockfile
+#                       (default: ./userScripts-update.lock)
+
+set -eu
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+GREASEMONKEY_DIR="${GREASEMONKEY_DIR:-$SCRIPT_DIR/greasemonkey}"
+SOURCES_DIR="${SOURCES_DIR:-$SCRIPT_DIR/userScripts.d}"
+LOCKFILE="${LOCKFILE:-$SCRIPT_DIR/userScripts-update.lock}"
+
+ONLY=""
+CHECK_ONLY=0
+FORCE=0
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--only) ONLY="$2"; shift 2 ;;
+		--check-only) CHECK_ONLY=1; shift ;;
+		--force) FORCE=1; shift ;;
+		*) echo "unknown arg: $1" >&2; exit 1 ;;
+	esac
+done
+
+log() { echo "==> $*"; }
+err() { echo "!! $*" >&2; }
+
+exec 9>"$LOCKFILE"
+if ! flock -n 9; then
+	log "another update is running, waiting..."
+	flock 9
+fi
+
+mkdir -p "$GREASEMONKEY_DIR"
+
+hash_file() {
+	[ -f "$1" ] && sha256sum "$1" | cut -d' ' -f1 || echo ""
+}
+
+# Per-type update logic
+
+fetch_userscript() {
+	# core fetch used by both TYPE=userscript (fixed URL) and TYPE=custom
+	# (URL resolved dynamically by a PARSER command)
+	name="$1" distfiles="$2" filename="$3"
+	dest="$GREASEMONKEY_DIR/${filename:-$name.user.js}"
+
+	[ "$CHECK_ONLY" -eq 1 ] && { log "[$name] --check-only, skipping fetch"; return 0; }
+
+	tmp=$(mktemp)
+	if ! curl -fsSL "$distfiles" -o "$tmp"; then
+		err "[$name] failed to fetch $distfiles"
+		rm -f "$tmp"
+		return 1
+	fi
+
+	oldsum=$(hash_file "$dest")
+	newsum=$(hash_file "$tmp")
+
+	if [ "$oldsum" = "$newsum" ] && [ "$FORCE" -eq 0 ]; then
+		log "[$name] unchanged"
+		rm -f "$tmp"
+		return 0
+	fi
+
+	mv "$tmp" "$dest"
+	log "[$name] updated -> $dest"
+}
+
+update_userscript() {
+	# TYPE=userscript -- DISTFILES is a fixed raw .user.js URL
+	name="$1" distfiles="$2" filename="$3"
+	[ -n "$distfiles" ] || { err "[$name] no DISTFILES set"; return 1; }
+	fetch_userscript "$name" "$distfiles" "$filename"
+}
+
+update_custom() {
+	# TYPE=custom -- PARSER is run as a shell command; its stdout must
+	# include a DISTFILES= line (FILENAME= optional), for scripts whose
+	# "latest" URL needs to be resolved dynamically rather than fixed.
+	name="$1" parser="$2"
+	[ -n "$parser" ] || { err "[$name] no PARSER set"; return 1; }
+
+	output=$(cd "$SCRIPT_DIR" && sh -c "$parser") || { err "[$name] PARSER command failed"; return 1; }
+
+	distfiles=$(printf '%s\n' "$output" | sed -n 's/^DISTFILES=//p' | head -n1)
+	filename=$(printf '%s\n' "$output" | sed -n 's/^FILENAME=//p' | head -n1)
+
+	[ -n "$distfiles" ] || { err "[$name] PARSER didn't print a DISTFILES= line"; return 1; }
+
+	fetch_userscript "$name" "$distfiles" "$filename"
+}
+
+# Load sources.d/*.conf and dispatch
+
+[ -d "$SOURCES_DIR" ] || { err "no such dir: $SOURCES_DIR"; exit 1; }
+
+for conf in "$SOURCES_DIR"/*.conf; do
+	[ -e "$conf" ] || continue
+	NAME="" TYPE="" DISTFILES="" FILENAME="" PARSER=""
+	# shellcheck disable=SC1090
+	. "$conf"
+
+	[ -n "$ONLY" ] && [ "$NAME" != "$ONLY" ] && continue
+
+	case "$TYPE" in
+		userscript)
+			update_userscript "$NAME" "$DISTFILES" "$FILENAME" || err "[$NAME] update failed"
+			;;
+		custom)
+			update_custom "$NAME" "$PARSER" || err "[$NAME] update failed"
+			;;
+		*)
+			err "$conf: unknown TYPE='$TYPE' (expected userscript|custom)"
+			;;
+	esac
+done
+
+log "all done"

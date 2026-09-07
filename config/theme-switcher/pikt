@@ -170,8 +170,13 @@ fi
 
 if [ -f "$dir/qutebrowser-theme.py" ]; then
 	ln -sfn "$dir/qutebrowser-theme.py" "$ACTIVE_DIR/qutebrowser-theme.py"
-	pgrep -x qutebrowser && qutebrowser ":config-source" || true
 fi
+
+if [ -d "$dir/qutebrowser-userStyles" ]; then
+	ln -sfnT "$dir/qutebrowser-userStyles" "$ACTIVE_DIR/qutebrowser-userStyles"
+fi
+
+pgrep -x qutebrowser && qutebrowser ":config-source" || true
 
 echo "$name" > "$STATE_FILE"
 echo "switched to $name"

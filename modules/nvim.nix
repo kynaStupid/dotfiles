@@ -11,18 +11,17 @@ let
 				"${config.home.homeDirectory}/${themeSwitcher.dir}"
 	'';
 
-	themeFileEntries = lib.listToAttrs (lib.unique (map (theme: {
+	themeFileEntries = lib.listToAttrs ((lib.unique (map (theme: {
 		name = "${themeSwitcher.dir}/nvim/plugins/${theme.nvim.type}.lua";
 		value.source = pkgs.writeText "${theme.nvim.type}-theme.lua" ''
 			return { "${theme.nvim.plugin}", priority = 999 }
 		'';
 	}) themes))
-	//
-	lib.listToAttrs (map (theme: {
+	++ (map (theme: {
 		name = "${themeSwitcher.dir}/themes/${theme.id}/nvim-theme.lua";
 		value.source = pkgs.writeText "${theme.id}-nvim-theme.lua"
 			theme.nvim.config;
-	}) themes);
+	}) themes));
 in {
 	programs.neovim = {
 		enable = true;

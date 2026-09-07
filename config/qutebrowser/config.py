@@ -253,6 +253,10 @@ config.bind("N", "prompt-accept --save no", mode="yesno")
 
 homepage = "about:blank"
 
+c.aliases = {
+    "userscripts-update": "spawn --detach @USERSCRIPTS_UPDATE_FILE@"
+}
+
 # preferences
 
 config.load_autoconfig(False)
@@ -304,7 +308,7 @@ c.downloads.location.suggestion = "path"
 # search engine
 
 c.url.searchengines = {
-    "DEFAULT": "https://www.startpage.com/sp/search?query={}",
+    "DEFAULT": "https://noai.duckduckgo.com/?q={}&kp=-2",
     "yt": "https://youtube.com/search?q={}",
     "gh": "https://github.com/search?q={}",
     "cpp": "https://en.cppreference.com/mwiki/index.php?search={}",
@@ -361,6 +365,7 @@ c.content.blocking.enabled = True
 c.content.blocking.adblock.lists = [
     'https://easylist.to/easylist/easylist.txt',
     'https://easylist.to/easylist/easyprivacy.txt',
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
 ]
 c.content.blocking.method = "both"
 

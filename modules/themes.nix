@@ -3,7 +3,7 @@
 
 let
 	mkTheme = import ../lib/mkTheme.nix { inherit pkgs lib; };
-	mkCatppuccinTheme = import ../lib/mkCatppuccinTheme.nix { inherit pkgs lib; };
+	mkCatppuccinTheme = import ../lib/mkCatppuccinTheme.nix { inherit config pkgs lib themeSwitcher; };
 
 	packagesOf = theme:
 		(theme.gtk.packages or []) ++

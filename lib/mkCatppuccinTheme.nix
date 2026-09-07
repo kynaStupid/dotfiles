@@ -1,5 +1,5 @@
 # mkCatppuccinTheme.nix
-{ pkgs, lib }:
+{ config, pkgs, lib, themeSwitcher }:
 
 let
 	mkTheme = import ./mkTheme.nix { inherit pkgs lib; };
@@ -46,8 +46,10 @@ let
 			g = hex: byte (builtins.substring 2 2 hex);
 			b = hex: byte (builtins.substring 4 2 hex);
 		};
+	rgb = hex:
+		"${toString (hexToRgb.r hex)}, ${toString (hexToRgb.g hex)}, ${toString (hexToRgb.b hex)}";
 	rgba = hex: opacity:
-		"${toString (hexToRgb.r hex)}, ${toString (hexToRgb.g hex)}, ${toString (hexToRgb.b hex)}, ${toString (builtins.floor ((255 * opacity) + 0.5))}";
+		"${rgb hex}, ${toString (builtins.floor ((255 * opacity) + 0.5))}";
 in mkTheme {
 	inherit opacity icons font border margin spacing animations extra;
 
@@ -433,7 +435,9 @@ c.tabs.min_width = -1
 c.downloads.position = "top"
 
 # Colors
+
 # statusbar
+
 c.colors.statusbar.normal.bg = "rgba(${rgba palette.colors.mantle.hex opacity.shell})"
 c.colors.statusbar.normal.fg = "rgba(${rgba palette.colors.text.hex opacity.default})"
 c.colors.statusbar.command.bg = "rgba(${rgba palette.colors.mantle.hex opacity.shell})"
@@ -450,6 +454,7 @@ c.colors.statusbar.private.bg = "rgba(${rgba palette.colors.surface1.hex opacity
 c.colors.statusbar.private.fg = "rgba(${rgba palette.colors.subtext0.hex opacity.default})"
 
 # tabs
+
 c.colors.tabs.bar.bg = "rgba(${rgba palette.colors.mantle.hex opacity.shell})"
 
 c.colors.tabs.odd.bg = "rgba(${rgba palette.colors.surface0.hex opacity.unfocused})"
@@ -473,6 +478,7 @@ c.colors.tabs.pinned.selected.even.bg = "rgba(${rgba palette.colors.base.hex opa
 c.colors.tabs.pinned.selected.even.fg = "rgba(${rgba accent.color.hex opacity.default})"
 
 # completion
+
 c.colors.completion.odd.bg = "rgba(${rgba palette.colors.mantle.hex opacity.shell})"
 c.colors.completion.even.bg = "rgba(${rgba palette.colors.crust.hex opacity.shell})"
 c.colors.completion.fg = "rgba(${rgba palette.colors.text.hex opacity.default})"
@@ -484,21 +490,25 @@ c.colors.completion.scrollbar.bg = "rgba(${rgba palette.colors.mantle.hex opacit
 c.colors.completion.scrollbar.fg = "rgba(${rgba palette.colors.base.hex opacity.shell})"
 
 # hints
+
 c.colors.hints.bg = "rgba(${rgba accent.color.hex opacity.shell})"
 c.colors.hints.fg = "rgba(${rgba palette.colors.base.hex opacity.default})"
 c.colors.hints.match.fg = "rgba(${rgba palette.colors.crust.hex opacity.default})"
 
 # keyhint
+
 c.colors.keyhint.bg = "rgba(${rgba palette.colors.crust.hex opacity.shell})"
 c.colors.keyhint.fg = "rgba(${rgba palette.colors.text.hex opacity.default})"
 
 # prompts
+
 c.colors.prompts.bg = "rgba(${rgba palette.colors.surface0.hex opacity.shell})"
 c.colors.prompts.fg = "rgba(${rgba palette.colors.text.hex opacity.default})"
 c.colors.prompts.selected.bg = "rgba(${rgba palette.colors.surface2.hex opacity.default})"
 c.colors.prompts.selected.fg = "rgba(${rgba palette.colors.subtext0.hex opacity.default})"
 
 # messages
+
 c.colors.messages.error.bg = "rgba(${rgba palette.colors.red.hex opacity.default})"
 c.colors.messages.error.fg = "rgba(${rgba palette.colors.base.hex opacity.default})"
 c.colors.messages.warning.bg = "rgba(${rgba palette.colors.yellow.hex opacity.default})"
@@ -507,6 +517,7 @@ c.colors.messages.info.bg = "rgba(${rgba palette.colors.surface0.hex opacity.she
 c.colors.messages.info.fg = "rgba(${rgba palette.colors.subtext0.hex opacity.default})"
 
 # downloads
+
 c.colors.downloads.bar.bg = "rgba(${rgba palette.colors.mantle.hex opacity.default})"
 c.colors.downloads.start.bg = "rgba(${rgba palette.colors.blue.hex opacity.default})"
 c.colors.downloads.start.fg = "rgba(${rgba palette.colors.base.hex opacity.default})"
@@ -516,8 +527,22 @@ c.colors.downloads.error.bg = "rgba(${rgba palette.colors.red.hex opacity.defaul
 c.colors.downloads.error.fg = "rgba(${rgba palette.colors.base.hex opacity.default})"
 
 # webpage
-c.colors.webpage.bg = "rgba(${rgba palette.colors.base.hex 1})"
+
+c.colors.webpage.bg = "#${palette.colors.base.hex}"
 c.colors.webpage.preferred_color_scheme = "${if palette.dark then "dark" else "light"}"
+
+# UserStyles
+
+#c.content.user_stylesheets = [
+#	"${config.home.homeDirectory}/${themeSwitcher.dir}/active/qutebrowser-userStyles/background.css"
+#]
 		'';
+		userStyles = [
+			/*{ name = "background.css"; config = ''
+html {
+	background: #${palette.colors.base.hex} !important;
+}
+			''; }*/
+		];
 	} // qutebrowser;
 }
