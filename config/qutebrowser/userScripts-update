@@ -1,10 +1,9 @@
 #!/bin/sh
-# qb-userscript-update
+# userScripts-update
 #
 # Fetches/refreshes qutebrowser greasemonkey userscripts declared as
-# small config files under sources.d/*.conf -- adding a userscript is
-# "drop a file in sources.d/", not editing a central list. Same shape
-# as xbps-src-update's packages.d/*.conf.
+# small config files under userScripts.d/*.conf -- adding a userscript is
+# "drop a file in userScripts.d/", not editing a central list.
 #
 # Filter lists (easylist etc.) are NOT handled here -- those are just
 # set directly as c.content.blocking.adblock.lists in config.py, since
@@ -19,8 +18,8 @@
 # Env:
 #   GREASEMONKEY_DIR    where fetched userscripts are written
 #                       (default: ./greasemonkey)
-#   SOURCES_DIR         path to userScripts.d
-#                       (default: ./userScripts.d next to this script)
+#   SOURCES_DIR         path to userScripts.d/
+#                       (default: ./userScripts.d/ next to this script)
 #   LOCKFILE            path to lockfile
 #                       (default: ./userScripts-update.lock)
 
