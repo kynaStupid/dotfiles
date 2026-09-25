@@ -6,7 +6,7 @@ import "../services"
 
 QtObject {
 	property color barColor: Theme.base
-	property real barOpacity: barHovered? Theme.barOpacityFocused: Theme.barOpacityUnfocused
+	property real barOpacity: barHovered? Theme.barOpacityFocused: Theme.barOpacityFocused * Theme.barOpacityUnfocused
 
 	property color borderColor: barHovered? Theme.accent: Theme.surface0
 

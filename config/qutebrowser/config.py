@@ -35,7 +35,10 @@ config.bind("/", "cmd-set-text /")
 config.bind("?", "cmd-set-text ?")
 config.bind(":", "cmd-set-text :")
 
-config.bind(f"o", "cmd-set-text -s :open")
+config.bind("o", "cmd-set-text -s :open")
+
+config.bind(f"{paste}", "open -- {clipboard}")
+config.bind(f"<Shift-{paste}>", "open -- {primary}")
 
 config.bind(f"{leader}f", "forward")
 config.bind(f"{leader}b", "back")

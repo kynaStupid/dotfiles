@@ -20,6 +20,12 @@ let
 			icons = { name = "Papirus-Light"; packages = with pkgs; [ papirus-icon-theme ]; };
 		})
 		(mkCatppuccinTheme {
+			variant = "mocha";
+			accent = { name = "red"; color = { hex = "df2041"; ansi = 161; }; };
+			opacity = { default = 1; unfocused = 0.7; shell = 0.8; };
+			icons = { name = "Papirus-Light"; packages = with pkgs; [ papirus-icon-theme ]; };
+		})
+		(mkCatppuccinTheme {
 			variant = "latte";
 			accent = { name = "peach"; color = { hex = "fe640b"; ansi = 208; }; };
 			opacity = { default = 1; unfocused = 0.7; shell = 0.8; };
