@@ -2,36 +2,23 @@
 
 let
 	username = "sheb";
+	modulesPath = [ ./modules ];
 in {
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
-  home.stateVersion = "26.05";
-  
-  programs.home-manager.enable = true;
+	home.username = username;
+	home.homeDirectory = "/home/${username}";
+	home.stateVersion = "26.05";
 
-  #systemd.user.startServices = "sd-switch";
+	programs.home-manager.enable = true;
 
-  imports = [
-  	./modules/packages.nix
-		./modules/theme-switcher.nix
-		./modules/themes.nix
-		./modules/zsh.nix
-		./modules/labwc.nix
-		./modules/mango.nix
-		./modules/quickshell.nix
-		./modules/waybar.nix
-		./modules/mako.nix
-		./modules/rofi.nix
-		./modules/alacritty.nix
-		./modules/btop.nix
-		./modules/yazi.nix
-		./modules/nvim.nix
-		./modules/qutebrowser.nix
-		./modules/thunar.nix
-		./modules/vlc.nix
-		./modules/flameshot.nix
-		./modules/obs.nix
-		./modules/dorion.nix
-		./modules/libreoffice.nix
-  ];
+	#systemd.user.startServices = "sd-switch";
+
+	imports = lib.flatten (
+		map
+			(path:
+				lib.filter
+					(file: lib.hasSuffix ".nix" (toString file))
+					(lib.filesystem.listFilesRecursive path)
+			)
+			modulesPath
+	);
 }
