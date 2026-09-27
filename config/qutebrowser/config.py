@@ -7,10 +7,12 @@ c.bindings.default = {}
 leader = " "
 tab = "t"
 window = "n"
+delete = "k"
 copy = "y"
 paste = "p"
 hint = "e"
-mark = "`"
+qmark = "~"
+bmark = "`"
 setting = "g"
 
 # modes
@@ -48,17 +50,19 @@ config.bind(f"{leader}R", "reload -f")
 
 config.bind(f"q", "tab-close")
 config.bind("z", "undo")
-config.bind("Z", "undo -w")
+config.bind("Z", "undo --window")
 
 config.bind(f"{leader}{copy}", "yank")
 config.bind(f"{leader}<Shift-{copy}>", "yank -s")
 config.bind(f"{leader}{paste}", "open -- {clipboard}")
 config.bind(f"{leader}<Shift-{paste}>", "open -- {primary}")
 
-config.bind(f"{mark}", "quickmark-save")
-config.bind(f"{leader}{mark}", "cmd-set-text -s :quickmark-load")
-config.bind(f"<Shift-{mark}>", "bookmark-add")
-config.bind(f"{leader}<Shift-{mark}>", "cmd-set-text -s :bookmark-load")
+config.bind(f"{leader}{bmark}", "bookmark-add")
+config.bind(f"{delete}{bmark}", "cmd-set-text -s :bookmark-del")
+config.bind(f"{bmark}", "cmd-set-text -s :bookmark-load")
+config.bind(f"{leader}{qmark}", "quickmark-save")
+config.bind(f"{delete}{qmark}", "cmd-set-text -s :quickmark-del")
+config.bind(f"{qmark}", "cmd-set-text -s :quickmark-load")
 
 config.bind(f"{hint}", "hint")
 config.bind(f"<Shift-{hint}>", "hint --rapid")
@@ -117,8 +121,8 @@ config.bind(f"{tab}<Shift-{copy}>", "yank pretty-url -s")
 config.bind(f"{tab}{paste}", "open -t -- {clipboard}")
 config.bind(f"{tab}<Shift-{paste}>", "open -t -- {primary}")
 
-config.bind(f"{tab}{mark}", "cmd-set-text -s :quickmark-load -t")
-config.bind(f"{tab}<Shift-{mark}>", "cmd-set-text -s :bookmark-load -t")
+config.bind(f"{tab}{bmark}", "cmd-set-text -s :bookmark-load -t")
+config.bind(f"{tab}{qmark}", "cmd-set-text -s :quickmark-load -t")
 
 config.bind(f"{tab}{hint}", "hint all tab")
 config.bind(f"{tab}<Shift-{hint}>", "hint --rapid all tab")
@@ -136,8 +140,8 @@ config.bind(f"{window}<Shift-{copy}>", "yank title -s")
 config.bind(f"{window}{paste}", "open -w -- {clipboard}")
 config.bind(f"{window}<Shift-{paste}>", "open -w -- {primary}")
 
-config.bind(f"{window}{mark}", "cmd-set-text -s :quickmark-load -w")
-config.bind(f"{window}<Shift-{mark}>", "cmd-set-text -s :bookmark-load -w")
+config.bind(f"{window}{bmark}", "cmd-set-text -s :bookmark-load -w")
+config.bind(f"{window}{qmark}", "cmd-set-text -s :quickmark-load -w")
 
 config.bind(f"{window}{hint}", "hint all window")
 config.bind(f"{window}<Shift-{hint}>", "hint --rapid all window")

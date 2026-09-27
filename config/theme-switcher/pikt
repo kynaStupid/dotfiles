@@ -31,7 +31,11 @@ case "${1:-}" in
 		cat "$STATE_FILE" 2>/dev/null || echo "(none set)"
 		exit 0
 		;;
-	-h|--help|"")
+	-h|--help)
+		usage
+		exit 0
+		;;
+	"")
 		usage
 		exit 1
 		;;

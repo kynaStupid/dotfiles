@@ -4,6 +4,7 @@ let
 	mkAlacrittyToml = theme: pkgs.writeText "alacritty-theme-${theme.id}.toml" ''
 		[window]
 		opacity = ${toString theme.opacity.shell}
+		padding = { x = ${toString theme.margin}, y = ${toString theme.margin} }
 
 		[font]
 		size = ${toString theme.font.size}
@@ -53,11 +54,6 @@ in {
 		settings = {
 	  	window = {
         decorations = "None";
-
-        padding = {
-          x = 0;
-          y = 0;
-        };
     	};
 
 	  	selection.save_to_clipboard = true;

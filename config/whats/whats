@@ -1,0 +1,343 @@
+#!/usr/bin/env bash
+#
+# whats - a convenience lookup tool.
+#
+# Usage:
+#   whats [-v] <query>
+#
+# Tries each of the following backends in order, stopping at the first
+# one that produces an answer:
+#
+#   1. qcalculator     - qalc (libqalculate): math, functions, unit conversions
+#   2. tldr            - `tldr` command-line cheatsheets, if installed
+#   3. man             - `whatis` one-line man-page summary
+#   4. dict            - local `dict` command (dictd client), if installed
+#   5. dictionaryapi   - curl call to api.dictionaryapi.dev, parsed with jq
+#   6. duckduckgo_api  - DDG Instant Answer API: topic summaries, calculations,
+#                        unit conversions. NOT a general search API - most
+#                        conversational queries return nothing here.
+#   7. duckduckgo_html - scrapes html.duckduckgo.com (DDG's no-JS results
+#                        page) for whatever the API missed: a quick-answer
+#                        box, an AI-summary box, or the top organic results
+#                        with snippets, ads filtered out.
+#
+# Requires: curl, jq (needed for the dictionaryapi/duckduckgo_api backends
+# to do anything; duckduckgo_html works without jq too, just with cruder
+# URL-encoding). qalc/dict/tldr/whatis are each optional - if a given
+# binary isn't on your PATH, that backend is just skipped.
+#
+# Set WHATS_DEBUG_HTML=1 to dump the raw page duckduckgo_html fetched to
+# /tmp/whats_ddg_debug.html, for inspecting real markup if extraction
+# there ever comes up empty on a query you expected an answer for.
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
+
+set -uo pipefail
+
+VERBOSE=0
+QUERY_ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "-v" ]]; then
+    VERBOSE=1
+  else
+    QUERY_ARGS+=("$arg")
+  fi
+done
+
+if [[ ${#QUERY_ARGS[@]} -eq 0 ]]; then
+  echo "usage: whats [-v] <query>" >&2
+  exit 1
+fi
+
+QUERY="${QUERY_ARGS[*]}"
+
+log() {
+  [[ "$VERBOSE" -eq 1 ]] && echo "[$1]" >&2
+}
+
+# percent-decode a string with no external tool (printf's %b expands \xHH)
+urldecode() {
+  local s="${1//+/ }"
+  printf '%b' "${s//%/\\x}" 2>/dev/null
+}
+
+# DDG wraps result links as //duckduckgo.com/l/?uddg=<encoded-target>&rut=...
+# - unwrap that back to the real target URL.
+unwrap_url() {
+  local href="$1"
+  if [[ "$href" == *"uddg="* ]]; then
+    href="${href#*uddg=}"
+    href="${href%%&*}"
+  fi
+  urldecode "$href"
+}
+
+# ---------------------------------------------------------------------------
+# 1. qcalculator (qalc, from libqalculate)
+#
+# qalc supports real number math, functions (sqrt, sin, log...), constants
+# (pi, e...) and unit conversions ("5 km to miles") - far more than bc.
+# Two quirks to work around:
+#   - it always exits 0, even on garbage input, and will happily "answer"
+#     a bare word by treating it as an implicit unit/variable (e.g.
+#     "ephemeral" -> "20.08553692 ylm*m^4"). So we only hand it queries
+#     that contain a digit - the standard heuristic launcher-style calculator
+#     plugins use to decide "is this actually a calculation".
+#   - it can block waiting on stdin for more input, so it needs `< /dev/null`
+#     and a timeout.
+# ---------------------------------------------------------------------------
+backend_qcalculator() {
+  local q="$1"
+  command -v qalc >/dev/null 2>&1 || return 1
+  [[ "$q" =~ [0-9] ]] || return 1
+
+  local out
+  out=$(timeout 5 qalc -t "$q" < /dev/null 2>/dev/null)
+  if [[ -n "$out" ]]; then
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# 2. tldr
+# ---------------------------------------------------------------------------
+backend_tldr() {
+  local q="$1"
+  command -v tldr >/dev/null 2>&1 || return 1
+  local out status
+  out=$(tldr "$q" 2>&1)
+  status=$?
+  if [[ $status -eq 0 && -n "$out" ]] && ! grep -qi "not found" <<< "$out"; then
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# 3. man (via whatis: one-liner instead of a full page)
+# ---------------------------------------------------------------------------
+backend_man() {
+  local q="$1"
+  command -v whatis >/dev/null 2>&1 || return 1
+  local out
+  out=$(whatis "$q" 2>/dev/null)
+  if [[ -n "$out" ]]; then
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# 4. dict (local dictd client)
+# ---------------------------------------------------------------------------
+backend_dict() {
+  local q="$1"
+  command -v dict >/dev/null 2>&1 || return 1
+  local out
+  out=$(dict "$q" 2>/dev/null)
+  if [[ -n "$out" ]]; then
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# 5. curl + dictionary API (dictionaryapi.dev)
+# ---------------------------------------------------------------------------
+backend_dictionary_api() {
+  local q="$1"
+  [[ "$q" =~ [[:space:]] ]] && return 1  # only makes sense for single words
+  command -v curl >/dev/null 2>&1 || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+
+  local encoded json
+  encoded=$(jq -rn --arg q "$q" '$q|@uri')
+  json=$(curl -fsS --max-time 5 "https://api.dictionaryapi.dev/api/v2/entries/en/${encoded}" 2>/dev/null)
+  [[ -z "$json" ]] && return 1
+  echo "$json" | jq -e 'type == "array"' >/dev/null 2>&1 || return 1
+
+  local out
+  out=$(echo "$json" | jq -r '
+    .[0] as $e
+    | [$e.word]
+      + [ $e.meanings[]? | .partOfSpeech as $pos
+          | .definitions[0:2][]? | "  (\($pos)) \(.definition)" ]
+    | join("\n")
+  ' 2>/dev/null)
+
+  if [[ -n "$out" && "$out" != "null" ]]; then
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# 6. duckduckgo_api (DDG Instant Answer API: "AI summary" + top links)
+# ---------------------------------------------------------------------------
+backend_duckduckgo_api() {
+  local q="$1"
+  command -v curl >/dev/null 2>&1 || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+
+  local encoded json
+  encoded=$(jq -rn --arg q "$q" '$q|@uri')
+  json=$(curl -fsS --max-time 5 "https://api.duckduckgo.com/?q=${encoded}&format=json&no_redirect=1&no_html=1" 2>/dev/null)
+  [[ -z "$json" ]] && return 1
+
+  local summary links
+  summary=$(echo "$json" | jq -r '.AbstractText // .Answer // empty')
+  links=$(echo "$json" | jq -r '
+    [ .RelatedTopics[]?
+      | if .FirstURL then {text: .Text, url: .FirstURL}
+        elif .Topics then .Topics[]? | {text: .Text, url: .FirstURL}
+        else empty end
+    ] | .[0:5][] | "  - \(.text)\n    \(.url)"
+  ' 2>/dev/null)
+
+  if [[ -z "$summary" && -z "$links" ]]; then
+    return 1
+  fi
+
+  if [[ -n "$summary" ]]; then
+    echo "$summary"
+  else
+    echo "(no instant summary available)"
+  fi
+  if [[ -n "$links" ]]; then
+    echo ""
+    echo "Top links:"
+    echo "$links"
+  fi
+  return 0
+}
+
+# ---------------------------------------------------------------------------
+# 7. duckduckgo_html (scrapes html.duckduckgo.com when the API found nothing)
+#
+# Priority order per result: quick-answer box, then AI-summary box, then
+# the top organic results with snippets (sponsored ones filtered out).
+#
+# Confidence levels differ within this function:
+#   - The organic-result selectors (result__a / result__url / result__snippet,
+#     and the "no-results" marker) match DDG's real html.duckduckgo.com
+#     markup, cross-checked against several independent open-source
+#     DDG scrapers. This part is on solid ground.
+#   - The quick-answer and AI-summary (DuckAssist) box selectors below are
+#     my best guess at DDG's naming conventions, UNVERIFIED against live
+#     markup (html.duckduckgo.com was blocked in the network this was
+#     written in). DuckAssist in particular is documented as generating its
+#     answer in real time, which suggests it may often be filled in
+#     client-side rather than present in the initial HTML at all. If these
+#     two come up empty on a query you're sure has one, set
+#     WHATS_DEBUG_HTML=1, inspect /tmp/whats_ddg_debug.html, and send me
+#     the relevant snippet so the selector can be corrected.
+#   - The ad filter (result--ad / badge--ad) is also a best guess, not
+#     independently confirmed, so a sponsored result may occasionally slip
+#     through.
+# ---------------------------------------------------------------------------
+backend_duckduckgo_html() {
+  local q="$1"
+  command -v curl >/dev/null 2>&1 || return 1
+
+  local encoded
+  if command -v jq >/dev/null 2>&1; then
+    encoded=$(jq -rn --arg q "$q" '$q|@uri')
+  else
+    encoded=$(printf '%s' "$q" | sed 's/ /+/g')  # crude fallback without jq
+  fi
+
+  local html
+  html=$(curl -fsS --max-time 8 \
+    -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36" \
+    "https://html.duckduckgo.com/html/?q=${encoded}" 2>/dev/null)
+  [[ -z "$html" ]] && return 1
+
+  if [[ "${WHATS_DEBUG_HTML:-0}" == "1" ]]; then
+    echo "$html" > /tmp/whats_ddg_debug.html
+  fi
+
+  # DDG serves a bot/CAPTCHA challenge page instead of results when it
+  # thinks we're a bot - treat that as "no answer" rather than garbage.
+  if grep -q "anomaly-modal\|Unfortunately, bots use DuckDuckGo too" <<< "$html"; then
+    return 1
+  fi
+  grep -q 'class="no-results"' <<< "$html" && return 1
+
+  local flat
+  flat=$(tr '\n' ' ' <<< "$html")
+
+  # --- 1. quick-answer box (best-effort, see note above) ---
+  local quick
+  quick=$(grep -oP '(?<=class="zci__result">)[^<]*(<[^>]+>[^<]*)*?(?=</div>)' <<< "$flat" 2>/dev/null \
+    | sed -E 's/<[^>]+>//g' | head -c 500)
+  if [[ -n "$quick" ]]; then
+    echo "$quick"
+    return 0
+  fi
+
+  # --- 2. AI-summary / DuckAssist box (best-effort, see note above) ---
+  local ai
+  ai=$(grep -oP '(?<=id="ddg-ia-answer")[^>]*>[^<]*(<[^>]+>[^<]*)*?(?=</div>)' <<< "$flat" 2>/dev/null \
+    | sed -E 's/<[^>]+>//g' | head -c 500)
+  if [[ -n "$ai" ]]; then
+    echo "$ai"
+    return 0
+  fi
+
+  # --- 3. top organic results + snippets, sponsored ones skipped ---
+  local blocks
+  blocks=$(awk -v RS='<div class="result ' 'NR>1{print RS $0}' <<< "$flat")
+
+  local n=0 out="" block href title snippet
+  while IFS= read -r block; do
+    [[ $n -ge 5 ]] && break
+    [[ -z "$block" ]] && continue
+
+    grep -q 'result--ad\|badge--ad' <<< "$block" && continue
+
+    href=$(grep -oP '(?<=class="result__a" href=")[^"]*' <<< "$block" | head -1)
+    title=$(grep -oP 'class="result__a"[^>]{0,200}>\K[^<]*' <<< "$block" | head -1)
+    snippet=$(grep -oP 'class="result__snippet"[^>]{0,200}>\K[^<]*(<[^>]+>[^<]*)*?(?=</a>)' <<< "$block" 2>/dev/null \
+      | sed -E 's/<[^>]+>//g' | head -1)
+
+    [[ -z "$href" || -z "$title" ]] && continue
+
+    n=$((n + 1))
+    out+="$n. $title
+   $(unwrap_url "$href")"
+    [[ -n "$snippet" ]] && out+="
+   $snippet"
+    out+=$'\n'
+  done <<< "$blocks"
+
+  if [[ -n "$out" ]]; then
+    echo "$out"
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# driver
+# ---------------------------------------------------------------------------
+BACKENDS=(qcalculator tldr man dict dictionary_api duckduckgo_api duckduckgo_html)
+
+for name in "${BACKENDS[@]}"; do
+  if result=$(backend_"$name" "$QUERY"); then
+    log "$name"
+    echo "$result"
+    exit 0
+  fi
+done
+
+echo "whats: no answer found for '$QUERY'" >&2
+exit 1

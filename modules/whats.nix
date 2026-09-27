@@ -1,5 +1,8 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.file.".local/bin/whats".source = ../config/whats/whats;
+  home.file.".local/bin/whats" = {
+		source = ../config/whats/whats;
+		executable = true;
+	};
 }
