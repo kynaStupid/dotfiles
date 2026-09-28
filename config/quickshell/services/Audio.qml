@@ -11,7 +11,6 @@ Singleton {
 	readonly property PwNode sink: Pipewire.defaultAudioSink
 	readonly property PwNode source: Pipewire.defaultAudioSource
 
-	// 0.0 - 1.0 (sometimes a bit over 1.0 if overdriven, clamp at the UI layer if needed)
 	readonly property real volume: sink?.audio?.volume ?? 0
 	readonly property bool muted: !!sink?.audio?.muted
 
@@ -35,9 +34,6 @@ Singleton {
 			source.audio.muted = !source.audio.muted
 	}
 
-	// Keeps the dynamically-created sink/source nodes alive as long as this
-	// singleton exists. Without this, bindings above can silently stop
-	// updating after the underlying pipewire node is recreated.
 	PwObjectTracker {
 		objects: [root.sink, root.source]
 	}

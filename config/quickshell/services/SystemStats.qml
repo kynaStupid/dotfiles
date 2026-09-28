@@ -1,13 +1,4 @@
 // services/SystemStats.qml
-//
-// One singleton, one timer, polling /proc for CPU + memory usage.
-// Widgets bind to SystemStats.cpuUsage / SystemStats.memUsage directly —
-// no per-widget Process needed, which avoids spawning N processes for N bar
-// instances (relevant if you ever run this on multiple monitors).
-//
-// To add GPU later: same pattern, just add a `nvidiaProc` (or similar) and
-// a `gpuUsage` property below, then poll it in the same Timer.onTriggered.
-
 pragma Singleton
 
 import Quickshell
@@ -22,11 +13,6 @@ Singleton {
 	property int cpuUsage: 0
 	property int memUsage: 0
 
-	// --- CPU ---
-	// Reads cumulative jiffies from /proc/stat and diffs against the last
-	// sample to get a percentage. A single sample of /proc/stat is a
-	// cumulative counter since boot, not an instantaneous rate, hence the
-	// diffing logic.
 	property real _lastCpuIdle: 0
 	property real _lastCpuTotal: 0
 
@@ -37,7 +23,6 @@ Singleton {
 			onRead: data => {
 				if (!data)
 					return
-				// fields: cpu user nice system idle iowait irq softirq ...
 				const p = data.trim().split(/\s+/)
 				const idle = parseInt(p[4]) + parseInt(p[5])
 				const total = p.slice(1, 8).reduce((a, b) => a + parseInt(b), 0)
@@ -54,7 +39,6 @@ Singleton {
 		}
 	}
 
-	// --- Memory ---
 	Process {
 		id: memProc
 		command: ["sh", "-c", "free | grep Mem"]
