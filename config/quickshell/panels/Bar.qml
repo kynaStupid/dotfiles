@@ -55,6 +55,7 @@ PanelWindow {
 			height: Theme.barHeight
 			topRightRadius: Theme.barRadius - Theme.borderWidth
 			bottomRightRadius: Theme.barRadius - Theme.borderWidth
+			Behavior on bottomRightRadius { NumberAnimation { duration: Theme.animMorphDuration } }
 
 			color: Globals.barColor
 			opacity: Globals.barOpacity
@@ -64,31 +65,24 @@ PanelWindow {
 				{ type: "rectangle", item: statusBar }
 			]
 
+			HoverHandler {
+				onHoveredChanged: {
+					if (hovered)
+						Globals.barEnter()
+					else
+						Globals.barExit()
+				}
+			}
+
 			MouseArea {
-				anchors.fill: parent
+				id: taskBarHotspot
 				hoverEnabled: true
-				onEntered: Globals.barEnter()
-				onExited: Globals.barExit()
-
-				MouseArea {
-					id: taskBarHotspot
-					hoverEnabled: true
-					anchors.left: parent.left
-					anchors.top: parent.top
-					anchors.bottom: parent.bottom
-					width: Theme.barHeight
-					onEntered: Globals.expandTaskBar()
-				}
-
-				MouseArea {
-					id: mprisWidgetHotspot
-					hoverEnabled: mprisCompact.visible
-					anchors.top: parent.top
-					anchors.bottom: parent.bottom
-					x: Globals.absoluteX(mprisCompact, statusBar) + mprisCompact.width - width
-					width: Theme.barHeight
-					onEntered: Globals.expandMprisWidget()
-				}
+				anchors.left: statusBar.left
+				anchors.top: statusBar.top
+				anchors.bottom: statusBar.bottom
+				width: Theme.barHeight
+				preventStealing: false
+				onEntered: Globals.expandTaskBar()
 			}
 
 			// left
@@ -103,6 +97,17 @@ PanelWindow {
 				MprisWidget.Compact {
 					id: mprisCompact
 					canVisible: !Globals.mprisWidgetVisible
+
+					MouseArea {
+						id: mprisWidgetHotspot
+						hoverEnabled: parent.visible
+						anchors.right: parent.right
+						anchors.verticalCenter: parent.verticalCenter
+						width: Theme.barHeight
+						height: Theme.barHeight
+						preventStealing: false
+						onEntered: Globals.expandMprisWidget()
+					}
 				}
 			}
 
@@ -160,93 +165,209 @@ PanelWindow {
 				{ type: "invertedCorner", item: taskBarInvertedCornerRight }
 			]
 
-			MouseArea {
+			HoverHandler {
+				onHoveredChanged: {
+					if (hovered)
+						Globals.barEnter()
+					else
+						Globals.barExit()
+				}
+			}
+
+			WheelHandler {
+				onWheel: event => taskBarFlickable.scrollBy(event.angleDelta.y, false)
+			}
+
+			Flickable {
+				id: taskBarFlickable
 				anchors.fill: parent
-				hoverEnabled: true
-				onEntered: Globals.barEnter()
-				onExited: Globals.barExit()
+				anchors.margins: Theme.barMargin
+				clip: true
 
-				Flickable {
-					anchors.fill: parent
-					anchors.margins: Theme.barMargin
-					//contentWidth: taskBarColumn.implicitWidth
-					//contentHeight: taskBarColumn.implicitHeight
-					clip: true
-					boundsBehavior: Flickable.StopAtBounds
+				contentWidth: width
+				contentHeight: taskBarColumn.implicitHeight
 
-					Column {
-						id: taskBarColumn
-						anchors.fill: parent
-						spacing: Theme.barMargin
+				interactive: false
 
-						readonly property real buttonWidth: {
-							let widest = 0
-							let maxButtonWidth = taskBar.maxWidth - parent.anchors.margins*2
-							for (let i = 0; i < taskBarRepeater.count; i++) {
-								const item = taskBarRepeater.itemAt(i)
-								if (item)
-									widest = Math.max(widest, item.contentWidth)
-								if (widest > maxButtonWidth)
-									return maxButtonWidth
-							}
-							return widest
+				flickableDirection: Flickable.VerticalFlick
+				maximumFlickVelocity: 5000
+				flickDeceleration: 1000
+				boundsBehavior: Flickable.StopAtBounds
+
+				readonly property real maxContentY: Math.max(0, contentHeight - height)
+				property real rawOvershoot: 0
+				readonly property real overshoot: {
+					if (rawOvershoot === 0) return 0
+					const sign = rawOvershoot < 0? -1: 1
+					return sign * rubberBand(Math.abs(rawOvershoot), Theme.rubberBandDimension)
+				}
+				property real overshootVelocity: 0
+
+				function rubberBand(x, d) {
+					if (d <= 0) return 0
+					return (x * d * Theme.rubberBandC) / (d + Theme.rubberBandC * x)
+				}
+
+				function scrollBy(deltaPixels, isActiveDrag) {
+					if (rawOvershoot === 0 && overshootVelocity === 0) {
+						const newY = contentY - deltaPixels
+						if (newY < 0) {
+							contentY = 0
+							rawOvershoot = newY
+							if (!isActiveDrag)
+								overshootVelocity = -deltaPixels * 10
+						} else if (newY > maxContentY) {
+							contentY = maxContentY
+							rawOvershoot = newY - maxContentY
+							if (!isActiveDrag)
+								overshootVelocity = -deltaPixels * 10
+						} else {
+							contentY = newY
 						}
-	
-						Repeater {
-							id: taskBarRepeater
-							model: ToplevelManager.toplevels
+					} else if (isActiveDrag) {
+						rawOvershoot -= deltaPixels
+						overshootVelocity = 0
+					} else {
+						overshootVelocity -= deltaPixels * 10
+					}
+				}
 
-							delegate: Rectangle {
-								required property var modelData // the Toplevel for this index
+				DragHandler {
+					target: null
+					xAxis.enabled: false
+					yAxis.enabled: true
 
-								readonly property real contentWidth:
-									taskBarRepeaterContent.implicitWidth + Theme.barMargin * 2
-			
-								implicitWidth: taskBarColumn.buttonWidth - Theme.barMargin*2
-								implicitHeight: Theme.barWidth
-								radius: Theme.barRadius
-								color: taskBarRepeaterContentMouseArea.containsMouse?
-									Theme.surface1:
-									modelData.activated? Theme.surface0: Qt.alpha(taskBar.color, 0)
+					property real prevTranslationY: 0
 
-								Behavior on color { ColorAnimation { duration: Theme.animFocusDuration } }
+					onTranslationChanged: {
+						taskBarFlickable.scrollBy(translation.y - prevTranslationY, true)
+						prevTranslationY = translation.y
+					}
 
-								RowLayout {
-									id: taskBarRepeaterContent
-									anchors.left: parent.left
-									anchors.verticalCenter: parent.verticalCenter
-									spacing: Theme.barMargin
+					onActiveChanged: {
+						if (active)
+							prevTranslationY = translation.y
+						else if (taskBarFlickable.overshoot !== 0)
+							taskBarFlickable.overshootVelocity = -centroid.velocity.y
+						else
+							taskBarFlickable.flick(0, centroid.velocity.y)
+					}
+				}
 
-									IconImage {
-										implicitSize: Theme.barWidth
-										source: Quickshell.iconPath(modelData.appId)
-									}
+				onFlickingChanged: {
+					if (flicking && overshoot === 0 && (atYBeginning || atYEnd)) {
+						cancelFlick()
+						rawOvershoot = atYEnd? Number.MIN_VALUE: -Number.MIN_VALUE
+						overshootVelocity = -verticalVelocity
+					}
+				}
 
-									Text {
-										Layout.fillWidth: true
-										Layout.alignment: Qt.AlignVCenter
+				FrameAnimation {
+					running: taskBarFlickable.rawOvershoot !== 0 || taskBarFlickable.overshootVelocity !== 0
 
-										text: modelData.title || modelData.appId || "?"
-										color: Theme.text
-										font.pointSize: Theme.barTextSize
-										elide: Text.ElideRight
-									}
+					onTriggered: {
+						const dt = frameTime
+						const f = taskBarFlickable
+
+						if (f.height <= 0) {
+							f.rawOvershoot = 0
+							f.overshootVelocity = 0
+							return
+						}
+
+						const sign = f.rawOvershoot < 0 ? -1 : 1
+						const t = Math.min(1, Math.abs(f.rawOvershoot) / f.height)
+						const s = Theme.backS
+
+						const backForce = Math.abs((s + 1) * t*t*t - s * t*t)
+						const restoringAccel = -sign * backForce * Theme.springStrength * f.height
+
+						f.overshootVelocity += restoringAccel * dt
+						f.overshootVelocity *= Math.max(0, 1 - Theme.damping * dt)
+						f.rawOvershoot += f.overshootVelocity * dt
+
+						if (Math.abs(f.rawOvershoot) < 0.5 && Math.abs(f.overshootVelocity) < 5) {
+							f.rawOvershoot = 0
+							f.overshootVelocity = 0
+						}
+					}
+				}
+
+				Column {
+					id: taskBarColumn
+					anchors.left: parent.left
+					anchors.right: parent.right
+					y: -taskBarFlickable.overshoot
+					spacing: Theme.barMargin
+
+					readonly property real buttonWidth: {
+						let widest = 0
+						let maxButtonWidth = taskBar.maxWidth - parent.anchors.margins*2
+						for (let i = 0; i < taskBarRepeater.count; i++) {
+							const item = taskBarRepeater.itemAt(i)
+							if (item)
+								widest = Math.max(widest, item.contentWidth)
+							if (widest > maxButtonWidth)
+								return maxButtonWidth
+						}
+						return widest
+					}
+
+					Repeater {
+						id: taskBarRepeater
+						model: ToplevelManager.toplevels
+
+						delegate: Rectangle {
+							required property var modelData // the Toplevel for this index
+
+							readonly property real contentWidth:
+								taskBarRepeaterContent.implicitWidth + Theme.barMargin * 2
+		
+							implicitWidth: taskBarColumn.buttonWidth - Theme.barMargin*2
+							implicitHeight: Theme.barWidth
+							radius: Theme.barRadius
+							color: taskBarRepeaterContentMouseArea.containsMouse?
+								Theme.surface1:
+								modelData.activated? Theme.surface0: Qt.alpha(taskBar.color, 0)
+
+							Behavior on color { ColorAnimation { duration: Theme.animFocusDuration } }
+
+							RowLayout {
+								id: taskBarRepeaterContent
+								anchors.left: parent.left
+								anchors.verticalCenter: parent.verticalCenter
+								spacing: Theme.barMargin
+
+								IconImage {
+									implicitSize: Theme.barWidth
+									source: Quickshell.iconPath(modelData.appId)
 								}
 
-								MouseArea {
-									id: taskBarRepeaterContentMouseArea
-									anchors.fill: parent
-									cursorShape: Qt.PointingHandCursor
-									acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-									onClicked: mouse => {
-										if (mouse.button === Qt.LeftButton) {
-											modelData.activate()
-										} else if (mouse.button === Qt.MiddleButton) {
-											modelData.close()
-										}
-									}
-									hoverEnabled: true
+								Text {
+									Layout.fillWidth: true
+									Layout.alignment: Qt.AlignVCenter
+
+									text: modelData.title || modelData.appId || "?"
+									color: Theme.text
+									font.pointSize: Theme.barTextSize
+									elide: Text.ElideRight
 								}
+							}
+
+							MouseArea {
+								id: taskBarRepeaterContentMouseArea
+								anchors.fill: parent
+								cursorShape: Qt.PointingHandCursor
+								acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+								preventStealing: false
+								onClicked: mouse => {
+									if (mouse.button === Qt.LeftButton) {
+										modelData.activate()
+									} else if (mouse.button === Qt.MiddleButton) {
+										modelData.close()
+									}
+								}
+								hoverEnabled: true
 							}
 						}
 					}
@@ -280,6 +401,9 @@ PanelWindow {
 			anchors.right: mprisExpanded.right
 			height: mprisExpanded.height - statusBar.height
 
+			opacity: Globals.barOpacity
+			Behavior on opacity { NumberAnimation { duration: Theme.animFocusDuration } }
+
 			bottomLeftRadius: Theme.barRadius - Theme.borderWidth
 			bottomRightRadius: Theme.barRadius - Theme.borderWidth
 			color: Globals.barColor
@@ -288,6 +412,9 @@ PanelWindow {
 			id: mprisExpandedInvertedCornerLeft
 			anchors.right: mprisExpandedRectangle.left
 			anchors.top: statusBar.bottom
+
+			opacity: Globals.barOpacity
+			Behavior on opacity { NumberAnimation { duration: Theme.animFocusDuration } }
 
 			radius: Math.min(Theme.barRadius - Theme.borderWidth, mprisExpandedRectangle.height - Theme.barRadius)
 			color: Globals.barColor
@@ -298,10 +425,14 @@ PanelWindow {
 			anchors.left: mprisExpandedRectangle.right
 			anchors.top: statusBar.bottom
 
+			opacity: Globals.barOpacity
+			Behavior on opacity { NumberAnimation { duration: Theme.animFocusDuration } }
+
 			radius: Math.min(Theme.barRadius - Theme.borderWidth, mprisExpandedRectangle.height - Theme.barRadius)
 			color: Globals.barColor
 			corner: Qt.BottomRightCorner
 		}
+
 		MprisWidget.Expanded {
 			id: mprisExpanded
 			anchors.top: statusBar.top

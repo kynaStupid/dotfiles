@@ -1,0 +1,29 @@
+#!/bin/sh
+
+pids=""
+
+cleanup() {
+	[ -z "$pids" ] && return
+
+	kill $pids 2>/dev/null
+	wait $pids 2>/dev/null
+}
+
+trap cleanup EXIT INT TERM
+
+start() {
+	"$@" &
+	pids="$pids $!"
+}
+
+start kanshi
+start pipewire
+start wl-clip-persist --clipboard primary
+
+start lxqt-policykit-agent
+start udiskie
+
+start quickshell
+start awww-daemon
+
+wait

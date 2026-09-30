@@ -44,6 +44,12 @@ FileView {
 	property color base: adapter.base
 	property color mantle: adapter.mantle
 	property color crust: adapter.crust
+	
+	property real backS: 1.70158
+	property real springStrength: 100.0
+	property real damping: 10.0
+	property real rubberBandC: 0.5
+	property real rubberBandDimension: 100
 
 	JsonAdapter {
 		id: adapter
