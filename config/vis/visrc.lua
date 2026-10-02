@@ -24,14 +24,6 @@ local leader = ' '
 
 -- normal
 
-vis:map(NORMAL, leader .. leader, ":w<Enter>", "save")
-vis:map(NORMAL, leader .. 'q', ":q<Enter>", "quit")
-
-vis:map(NORMAL, 'o', "<vis-append-char-next>", "append")
-vis:map(NORMAL, leader .. 'o', "<vis-open-line-below>", "new line")
-
-vis:map(NORMAL, 'u', "<vis-operator-change><vis-motion-char-next>", "substitute")
-
 local motions = {
 	{ 'w', "<vis-motion-line-up>", "up" },
 	{ 'a', "<vis-motion-char-prev>", "left" },
@@ -50,6 +42,14 @@ for _, m in ipairs(motions) do
 	map({ NORMAL, VISUAL, VLINE, OPEND }, m[1], m[2], m[3])
 end
 
+vis:map(NORMAL, leader .. leader, ":w<Enter>", "save")
+vis:map(NORMAL, leader .. 'q', ":q<Enter>", "quit")
+
+vis:map(NORMAL, 'o', "<vis-append-char-next>", "append")
+vis:map(NORMAL, leader .. 'o', "<vis-open-line-below>", "new line")
+
+vis:map(NORMAL, 'u', "<vis-operator-change><vis-motion-char-next>", "substitute")
+
 vis:map(NORMAL, 'z', "<vis-undo>", "undo")
 vis:map(NORMAL, '<S-z>', "<vis-redo>", "redo")
 
@@ -61,10 +61,10 @@ vis:map(VLINE,  'k', "<vis-operator-delete>", "delete")
 --y = copy
 --p = paste
 
-vis:map(NORMAL, '<Up>',    '<C-w>k')		-- nav up window
-vis:map(NORMAL, '<Left>',  '<C-w>h')		-- nav left window
-vis:map(NORMAL, '<Down>',  '<C-w>j')		-- nav down window
-vis:map(NORMAL, '<Right>', '<C-w>l')		-- nav right window
+vis:map(NORMAL, '<Up>', '<C-w>k') -- nav up window
+vis:map(NORMAL, '<Left>', '<C-w>h') -- nav left window
+vis:map(NORMAL, '<Down>', '<C-w>j') -- nav down window
+vis:map(NORMAL, '<Right>', '<C-w>l') -- nav right window
 
 -- visual
 

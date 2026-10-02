@@ -33,7 +33,13 @@ cursor_size=${toString theme.cursor.size}
 
 overviewgappi=${toString theme.margin}
 overviewgappo=${toString theme.margin}
+
 scroller_structs=${toString (theme.margin + theme.border.width*2 + 2)}
+
+special_gappih=${toString theme.spacing}
+special_gappiv=${toString theme.spacing}
+special_gappoh=${toString theme.margin}
+special_gappov=${toString theme.margin}
 '';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {
