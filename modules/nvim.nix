@@ -23,13 +23,6 @@ let
 			theme.nvim.config;
 	}) themes));
 in {
-	programs.neovim = {
-		enable = true;
-
-		viAlias = true;
-		vimAlias = true;
-	};
-
 	xdg.configFile."nvim".source = nvimConfig;
 	home.file = themeFileEntries;
 }

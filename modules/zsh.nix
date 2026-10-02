@@ -23,7 +23,6 @@ let
 in {
 	home.packages = with pkgs; [
 		zinit
-		fzf
 	]
 	++ (if OS == "nix" then [
 		zsh

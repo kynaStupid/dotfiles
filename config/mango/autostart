@@ -21,7 +21,7 @@ start pipewire
 start wl-clip-persist --clipboard primary
 
 start lxqt-policykit-agent
-start udiskie
+start udiskie -a
 
 start quickshell
 start awww-daemon

@@ -21,7 +21,7 @@ let
 		})
 		(mkCatppuccinTheme {
 			variant = "mocha";
-			accent = { name = "red"; color = { hex = "df2041"; ansi = 161; }; };
+			accent = { name = "red"; color = { hex = "f38ba8"; ansi = 161; }; };
 			opacity = { default = 1; unfocused = 0.7; shell = 0.8; };
 			icons = { name = "Papirus-Light"; packages = with pkgs; [ papirus-icon-theme ]; };
 		})
