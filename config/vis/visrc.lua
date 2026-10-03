@@ -31,26 +31,26 @@ local motions = {
 	{ 'd', "<vis-motion-char-next>", "right" },
 	{ 'f', "<vis-motion-word-start-next>", "word forward" },
 	{ 'b', "<vis-motion-word-start-prev>", "word backward" },
-	{ leader .. 'w', "<vis-motion-line-first>", "start of file" },
-	{ leader .. 'a', "<vis-motion-line-begin>", "start of line" },
-	{ leader .. 's', "<vis-motion-line-last>", "end of file" },
-	{ leader .. 'd', "<vis-motion-line-end>", "end of line" },
-	{ leader .. 'b', "<vis-motion-line-start>", "first non-whitespace" },
-	{ leader .. 'f', "<vis-motion-line-finish>", "last non-whitespace" },
+	{ leader..'w', "<vis-motion-line-first>", "start of file" },
+	{ leader..'a', "<vis-motion-line-begin>", "start of line" },
+	{ leader..'s', "<vis-motion-line-last>", "end of file" },
+	{ leader..'d', "<vis-motion-line-end>", "end of line" },
+	{ leader..'b', "<vis-motion-line-start>", "first non-whitespace" },
+	{ leader..'f', "<vis-motion-line-finish>", "last non-whitespace" },
 }
 for _, m in ipairs(motions) do
 	map({ NORMAL, VISUAL, VLINE, OPEND }, m[1], m[2], m[3])
 end
 
-vis:map(NORMAL, leader .. leader, ":w<Enter>", "save")
-vis:map(NORMAL, leader .. 'q', ":q<Enter>", "quit")
+vis:map(NORMAL, leader..leader, ":w<Enter>", "save")
+vis:map(NORMAL, leader..'q', ":q<Enter>", "quit")
 
 vis:map(NORMAL, 'o', "<vis-append-char-next>", "append")
-vis:map(NORMAL, leader .. 'o', "<vis-open-line-below>", "new line")
+vis:map(NORMAL, leader..'o', "<vis-open-line-below>", "new line")
 
 vis:map(NORMAL, 'u', "<vis-operator-change><vis-motion-char-next>", "substitute")
 
-vis:map(NORMAL, 'z', "<vis-undo>", "undo")
+vis:map(NORMAL, 'z',     "<vis-undo>", "undo")
 vis:map(NORMAL, '<S-z>', "<vis-redo>", "redo")
 
 vis:map(NORMAL, 'k', "<vis-operator-delete>", "delete")
@@ -264,22 +264,22 @@ local function change_surround(from, to)
 end
 
 for key, d in pairs(delims) do
-	vis:map(NORMAL, 'js' .. key, function() surround_word(d) end, "surround word")
-	vis:map(NORMAL, 'jS' .. key, function() surround_line(d) end, "surround line")
-	vis:map(VISUAL, 'js' .. key, function() surround_selection(d) end, "surround selection")
-	vis:map(VLINE,  'js' .. key, function() surround_selection(d) end, "surround selection")
-	vis:map(NORMAL, 'ks' .. key, function() delete_surround(d) end, "delete surround")
+	vis:map(NORMAL, 'js'..key, function() surround_word(d) end,      "surround word")
+	vis:map(NORMAL, 'jS'..key, function() surround_line(d) end,      "surround line")
+	vis:map(VISUAL, 'js'..key, function() surround_selection(d) end, "surround selection")
+	vis:map(VLINE,  'js'..key, function() surround_selection(d) end, "surround selection")
+	vis:map(NORMAL, 'ks'..key, function() delete_surround(d) end,    "delete surround")
 	for key2, d2 in pairs(delims) do
-		vis:map(NORMAL, 'ls' .. key .. key2, function() change_surround(d, d2) end, "change surround")
+		vis:map(NORMAL, 'ls'..key..key2, function() change_surround(d, d2) end, "change surround")
 	end
 end
 
 -- fzf
 
-local function sq(s) return "'" .. tostring(s):gsub("'", "'\\''") .. "'" end
+local function sq(s) return "'"..tostring(s):gsub("'", "'\\''").."'" end
 
 local function have(prog)
-	local ok = os.execute("command -v " .. prog .. " >/dev/null 2>&1")
+	local ok = os.execute("command -v "..prog.." >/dev/null 2>&1")
 	return ok == true or ok == 0
 end
 
@@ -290,7 +290,7 @@ local function fzf(producer, args)
 	if not have("fzf") then vis:info("fzf not found in PATH") return nil end
 	local file = vis.win.file
 	local status, out = vis:pipe(file, { start = 0, finish = 0 },
-		producer .. " | fzf " .. (args or ""), true)
+		producer.." | fzf "..(args or ""), true)
 	redraw()
 	if status ~= 0 or not out then return nil end
 	out = out:gsub("\n.*$", "")
@@ -299,7 +299,7 @@ local function fzf(producer, args)
 end
 
 local function edit(path, line)
-	vis:command("e " .. sq(path))
+	vis:command("e "..sq(path))
 	if line then vis.win.selection:to(line, 1) end
 end
 
@@ -314,7 +314,7 @@ local function live_grep()
 	local rg = "rg --line-number --no-heading --color=never --smart-case -e {q} . 2>/dev/null"
 	local gr = "grep -rIn -e {q} . 2>/dev/null"
 	local reload = "[ -n {q} ] && (" .. rg .. " || " .. gr .. ") || true"
-	local out = fzf(":", "--disabled --delimiter : --prompt 'grep> ' --bind " .. sq("change:reload:" .. reload))
+	local out = fzf(":", "--disabled --delimiter : --prompt 'grep> ' --bind " .. sq("change:reload:"..reload))
 	if not out then return end
 	local path, line = out:match("^(.-):(%d+):")
 	if path then edit(path, tonumber(line)) end
@@ -331,18 +331,18 @@ local function pick_buffer()
 	local f = io.open(tmp, "w")
 	f:write(table.concat(names, "\n"), "\n")
 	f:close()
-	local p = fzf("cat " .. sq(tmp), "--prompt 'buffers> '")
+	local p = fzf("cat "..sq(tmp), "--prompt 'buffers> '")
 	os.remove(tmp)
 	if p then edit(p) end
 end
 
 -- recent files are stored most-recent-last in a plain text file
-local data_home = os.getenv("XDG_DATA_HOME") or ((os.getenv("HOME") or "") .. "/.local/share")
+local data_home = os.getenv("XDG_DATA_HOME") or ((os.getenv("HOME") or "").."/.local/share")
 local recent_path = data_home .. "/vis/recent"
 
 local function remember(path)
 	if not path then return end
-	os.execute("mkdir -p " .. sq(data_home .. "/vis"))
+	os.execute("mkdir -p "..sq(data_home.."/vis"))
 	local f = io.open(recent_path, "a")
 	if f then f:write(path, "\n") f:close() end
 end
@@ -373,13 +373,14 @@ local function pick_recent()
 	if p then edit(p) end
 end
 
-vis:map(NORMAL, leader .. 'ff', pick_file,   "fzf files")
-vis:map(NORMAL, leader .. 'fg', live_grep,   "fzf live grep")
-vis:map(NORMAL, leader .. 'fb', pick_buffer, "fzf buffers")
-vis:map(NORMAL, leader .. 'fh', ":help<Enter>", "help")
-vis:map(NORMAL, leader .. 'fr', pick_recent, "fzf recent files")
+vis:map(NORMAL, leader..'ff', pick_file,      "fzf files")
+vis:map(NORMAL, leader..'fg', live_grep,      "fzf live grep")
+vis:map(NORMAL, leader..'fb', pick_buffer,    "fzf buffers")
+vis:map(NORMAL, leader..'fh', ":help<Enter>", "help")
+vis:map(NORMAL, leader..'fr', pick_recent,    "fzf recent files")
 
-require("localcomplete")
+-- Completion
+local localcomplete = require("localcomplete")
 
 vis.events.subscribe(vis.events.FILE_OPEN, function(file) remember(file.path) end)
 vis.events.subscribe(vis.events.FILE_SAVE_POST, function(file) remember(file.path) end)
