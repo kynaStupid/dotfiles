@@ -3,43 +3,45 @@
 --   <Tab>    (insert mode) complete with the best candidate (the [highlighted] one)
 --   <S-Tab>  (insert mode) insert a literal tab
 --
--- While you type in insert mode, the status bar shows a one-line box of the
--- fuzzy-ranked candidates:   INSERT » foo.lua » [get_token_name] gtn_x +2
--- It never changes your buffer: vis has no overlay API, and an earlier attempt
--- to draw the box as temporary buffer text corrupted the cursor/undo state.
+-- While you type in insert mode, the fuzzy-ranked candidates are offered as a
+-- segment of the status bar:   INSERT » foo.lua » [get_token_name] gtn_x +2
+-- localcomplete does NOT own the status bar; it registers a segment with
+-- statusline.lua (a separate file, so other plugins and your own config can
+-- share the bar).  Without statusline.lua, <Tab> still works, you just don't
+-- see the list.
 --
 -- It only ever suggests things the current document has shown it (see engine.lua).
 
 local base = ...
-local Index = require(base .. ".engine")
+local Index  = require(base .. ".engine")
+local detect = require(base .. ".detect")
 
 local M = {}
 
 -- Config
 M.config = {
 	tab_fallback = true,
-	statusline   = true,
-	max_items    = 3,
-	budget_ms    = 50, -- if analysing a file takes longer, live suggestions pause
+	max_items    = 5,
+	budget_ms    = 50,      -- if analysing a file takes longer, the live list pauses for
+	                        -- that file (<Tab> still works); see TODO "cache the model"
 }
 
--- Languages (add new ones here; keys are vis syntax names / file extensions)
-local lua_lang = require(base .. ".lang_lua")
-local sh_lang  = require(base .. ".lang_sh")
+-- Languages
 local languages = {
-	lua = lua_lang,
-	bash = sh_lang, sh = sh_lang,
+	lua = require(base .. ".lang_lua"),
+	sh  = require(base .. ".lang_sh"),
+	nix = require(base .. ".lang_nix"),
 }
 
+-- Re-checked on every use (cheap: 512 bytes)
 local function language_of(win)
-	local syntax = win.syntax
-	if syntax and languages[syntax] then return languages[syntax] end
-	local name = win.file.name or win.file.path or ""
-	local ext = name:match("%.(%w+)$")
-	return ext and languages[ext] or nil
+	local file = win.file
+	local head = file:content(0, math.min(512, file.size)) or ""
+	local key = detect.language_key(head, file.name or file.path, win.syntax)
+	return key and languages[key]
 end
 
--- Per-file index kept in step with the buffer by diffing at use time.
+-- Per-file index, kept in step with the buffer by diffing at use time.
 local slots = {} -- key -> slot
 
 local function split_lines(text)
@@ -54,7 +56,7 @@ local function sync(idx, text)
 	local na, nb = #old, #new
 	local a = 1
 	while a <= na and a <= nb and old[a] == new[a] do a = a + 1 end
-	if a > na and a > nb then return end
+	if a > na and a > nb then return end            -- nothing changed
 	local ea, eb = na, nb
 	while ea >= a and eb >= a and old[ea] == new[eb] do ea, eb = ea - 1, eb - 1 end
 	local mid = {}
@@ -76,16 +78,16 @@ local function buffer_text(file)
 	return file:content(0, file.size) or ""
 end
 
--- Candidates at the cursor: { cands = {...}, prefix = "...", pos = n } or nil.
+-- Candidates at the cursor: { cands, prefix, pos } or nil.
 -- Cached on (buffer text, cursor), so redraws that change nothing cost one string compare.
+-- `force` (used by <Tab>) ignores the live-list budget.
 local function compute(win, force)
 	local lang = language_of(win)
 	local sel = win.selection
 	local pos = sel and sel.pos
 	if not lang or not pos then return nil end
 
-	local file = win.file
-	local text = buffer_text(file)
+	local text = buffer_text(win.file)
 	local slot = slot_for(win, lang)
 	if slot.text == text and slot.pos == pos and slot.result then return slot.result end
 	if slot.slow and not force then return nil end
@@ -102,7 +104,7 @@ local function compute(win, force)
 	return slot.result
 end
 
--- <Tab>/<S-Tab>
+-- <Tab> / <S-Tab>
 local function complete()
 	local win = vis.win
 	local ok, res = pcall(compute, win, true)
@@ -133,7 +135,7 @@ local function insert_tab()
 end
 
 vis:map(vis.modes.INSERT, "<Tab>", function()
-	if not language_of(vis.win) then          -- unsupported filetype: <Tab> stays a plain tab
+	if not language_of(vis.win) then
 		insert_tab()
 	elseif not complete() and M.config.tab_fallback then
 		insert_tab()
@@ -142,74 +144,43 @@ end, "complete")
 
 vis:map(vis.modes.INSERT, "<S-Tab>", insert_tab, "insert tab")
 
--- The suggestion box (status bar)
-local function ulen(s) return utf8.len(s) or #s end
+-- The status-bar segment
+local function ulen(s)
+	if utf8 then return utf8.len(s) or #s end
+	return #s
+end
 
-local function box_text(win, room)
-	local ok, res = pcall(compute, win, false)
-	if not ok or not res or #res.cands == 0 then return nil end
+-- "[best] alt alt +3"
+local function format_items(res, room)
 	local parts, used = {}, 0
 	for i, c in ipairs(res.cands) do
 		if i > M.config.max_items then break end
 		local item = i == 1 and ("[" .. c.text .. "]") or c.text
-		if i > 1 and used + #item + 1 > room then break end
+		if i > 1 and used + ulen(item) + 1 > room then break end
 		parts[#parts + 1] = item
 		used = used + ulen(item) + 1
 	end
-	local more = #res.cands - #parts
 	local s = table.concat(parts, " ")
+	local more = #res.cands - #parts
 	if more > 0 then s = s .. " +" .. more end
 	return s
 end
 
--- This replaces vis's default status line (same content, copied from vis-std.lua) with one extra part while completing.
-local mode_names = {
-	[vis.modes.NORMAL] = '', [vis.modes.OPERATOR_PENDING] = '',
-	[vis.modes.VISUAL] = 'VISUAL', [vis.modes.VISUAL_LINE] = 'VISUAL-LINE',
-	[vis.modes.INSERT] = 'INSERT', [vis.modes.REPLACE] = 'REPLACE',
-}
+local has_statusline, statusline = pcall(require, "statusline")
+if has_statusline and type(statusline) == "table" and statusline.add then
+	statusline.add("localcomplete", function(win, ctx)
+		if vis.mode ~= vis.modes.INSERT or vis.win ~= win or ctx.room <= 8 then return nil end
+		local ok, res = pcall(compute, win, false)
+		if ok and res and #res.cands > 0 then return format_items(res, ctx.room) end
+	end)
+else
+	M.no_statusline = true
+	vis.events.subscribe(vis.events.WIN_OPEN, function()
+		vis:info("localcomplete: no statusline.lua, so the candidate list is hidden (Tab works)")
+	end)
+end
 
-vis.events.subscribe(vis.events.WIN_STATUS, function(win)
-	if not M.config.statusline then return end
-	local left_parts, right_parts = {}, {}
-	local file, selection = win.file, win.selection
-
-	local mode = mode_names[vis.mode]
-	if mode ~= '' and vis.win == win then table.insert(left_parts, mode) end
-	table.insert(left_parts, (file.name or '[No Name]') ..
-		(file.modified and ' [+]' or '') .. (vis.recording and ' @' or ''))
-
-	local count, keys = vis.count, vis.input_queue
-	if keys ~= '' then table.insert(right_parts, keys)
-	elseif count then table.insert(right_parts, count) end
-
-	if #win.selections > 1 then
-		table.insert(right_parts, selection.number .. '/' .. #win.selections)
-	end
-
-	local size = file.size
-	local pos = selection.pos or 0
-	table.insert(right_parts, (size == 0 and "0" or math.ceil(pos / size * 100)) .. "%")
-	if not win.large then
-		local col = selection.col
-		table.insert(right_parts, selection.line .. ', ' .. col)
-		if size > 33554432 or col > 65536 then win.large = true end
-	end
-
-	local left = ' ' .. table.concat(left_parts, " » ") .. ' '
-	local right = ' ' .. table.concat(right_parts, " « ") .. ' '
-
-	if vis.mode == vis.modes.INSERT and vis.win == win then
-		local room = (win.width or 80) - ulen(left) - ulen(right) - 6
-		if room > 8 then
-			local box = box_text(win, room)
-			if box then left = ' ' .. table.concat(left_parts, " » ") .. " » " .. box .. ' ' end
-		end
-	end
-	win:status(left, right)
-end)
-
--- Warm the index
+-- warm the index
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
 	local lang = language_of(win)
 	if lang then sync(slot_for(win, lang).idx, buffer_text(win.file)) end

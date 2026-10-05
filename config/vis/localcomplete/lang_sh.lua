@@ -15,6 +15,9 @@
 
 local S = {}
 
+local base = (...) and (...):match("^(.*)%.[^.]+$")
+local Scope = require(base and (base .. ".scope") or "scope").Scope
+
 local function set(list) local s = {} for _, v in ipairs(list) do s[v] = true end return s end
 
 local OPS = {
@@ -341,7 +344,8 @@ function S.analyze(line_toks, cursor)
 	end
 
 	local commands, globals, options, subs = {}, {}, {}, {}
-	local stack = { { kind = "file" } }
+	local sc = Scope.new()
+	local stack = sc.stack
 	local snap
 
 	local cmd_pos, cur_cmd, argn = true, nil, 0
@@ -359,23 +363,13 @@ function S.analyze(line_toks, cursor)
 	end
 	local function use_var(name)
 		if not name then return end
-		for k = #stack, 1, -1 do
-			if stack[k].decls and stack[k].decls[name] then return end
-		end
+		if sc:lookup(name) then return end
 		globals[name] = (globals[name] or 0) + 1
 	end
-	local function declare_local(name)
-		for k = #stack, 1, -1 do
-			if stack[k].kind == "fn" then stack[k].decls[name] = true return end
-		end
+	local function declare_local(name, line)
+		local _, f = sc:find(function(fr) return fr.kind == "fn" end)
+		if f then sc:declare(name, "var", f, line) return end
 		globals[name] = (globals[name] or 0) + 1       -- `local` outside a function: global
-	end
-	local function visible()
-		local v = {}
-		for k = 1, #stack do
-			if stack[k].decls then for name in pairs(stack[k].decls) do v[name] = true end end
-		end
-		return v
 	end
 	local function new_command()
 		cmd_pos, cur_cmd, argn = true, nil, 0
@@ -392,7 +386,7 @@ function S.analyze(line_toks, cursor)
 
 	-- $( ... ) and friends: the inner commands are analysed, then the outer command resumes
 	local function push_sub(kind, adj)
-		stack[#stack + 1] = { kind = kind, saved = { cmd_pos, cur_cmd, argn, decl_mode, skip_word }, adj = adj }
+		sc:push(kind, { saved = { cmd_pos, cur_cmd, argn, decl_mode, skip_word }, adj = adj })
 		new_command()
 	end
 	local function pop_sub()
@@ -400,7 +394,7 @@ function S.analyze(line_toks, cursor)
 			local fr = stack[k]
 			if fr.saved then
 				local s = fr.saved
-				for j = #stack, k, -1 do stack[j] = nil end
+				sc:pop_to(k)
 				cmd_pos, cur_cmd, argn, decl_mode, skip_word = s[1], s[2], s[3], s[4], s[5]
 				if not fr.adj then
 					if cmd_pos then cmd_pos, cur_cmd = false, nil else argn = argn + 1 end
@@ -413,7 +407,7 @@ function S.analyze(line_toks, cursor)
 	local function pop_to_closer(closer)
 		for k = #stack, 2, -1 do
 			if stack[k].closer == closer then
-				for j = #stack, k, -1 do stack[j] = nil end
+				sc:pop_to(k)
 				return true
 			end
 		end
@@ -422,7 +416,7 @@ function S.analyze(line_toks, cursor)
 	local function pop_case()
 		for k = #stack, 2, -1 do
 			if stack[k].kind == "case" then
-				for j = #stack, k, -1 do stack[j] = nil end
+				sc:pop_to(k)
 				return
 			end
 		end
@@ -440,7 +434,7 @@ function S.analyze(line_toks, cursor)
 			fn_name_next = fn_name_next,
 			pat = (f.kind == "case" and f.pat) or false,
 			in_array = f.kind == "arr", in_arith = f.kind == "arith",
-			visible = visible(),
+			visible = sc:visible(),
 		}
 	end
 
@@ -467,13 +461,13 @@ function S.analyze(line_toks, cursor)
 			local f = top()
 			if f.kind == "case" and f.pat then return end
 			if prev and prev.type == "word" and adj and prev.text:sub(-1) == "=" then
-				stack[#stack + 1] = { kind = "arr", closer = ")" }
+				sc:push("arr", { closer = ")" })
 			elseif fn_pending then
-				stack[#stack + 1] = { kind = "fn", closer = ")", decls = {} }
+				sc:push("fn", { closer = ")" })
 				fn_pending = false
 				new_command()
 			else
-				stack[#stack + 1] = { kind = "paren", closer = ")" }
+				sc:push("paren", { closer = ")" })
 				new_command()
 			end
 		elseif x == ")" then
@@ -483,7 +477,7 @@ function S.analyze(line_toks, cursor)
 				local fr = stack[k]
 				if fr.saved then pop_sub() return end
 				if fr.closer == ")" then
-					for j = #stack, k, -1 do stack[j] = nil end
+					sc:pop_to(k)
 					cmd_pos, cur_cmd = false, nil
 					return
 				end
@@ -506,17 +500,17 @@ function S.analyze(line_toks, cursor)
 		if text == "esac" then pop_case() cmd_pos, cur_cmd = false, nil return end
 		if text == "for" or text == "select" then for_state, cmd_pos = "var", false return end
 		if text == "case" then
-			stack[#stack + 1] = { kind = "case", pat = false }
+			sc:push("case", { pat = false })
 			case_state, cmd_pos = "subject", false
 			return
 		end
 		if text == "function" then fn_name_next, cmd_pos = true, false return end
 		if text == "{" then
 			if fn_pending then
-				stack[#stack + 1] = { kind = "fn", closer = "}", decls = {} }
+				sc:push("fn", { closer = "}" })
 				fn_pending = false
 			else
-				stack[#stack + 1] = { kind = "brace", closer = "}" }
+				sc:push("brace", { closer = "}" })
 			end
 			return
 		end
@@ -593,7 +587,7 @@ function S.analyze(line_toks, cursor)
 				argn = argn + 1
 				if argn == 2 then use_var(nm) end
 			elseif nm then
-				if decl_mode == "local" then declare_local(nm) else use_var(nm) end
+				if decl_mode == "local" then declare_local(nm, t.line) else use_var(nm) end
 			end
 			return
 		end

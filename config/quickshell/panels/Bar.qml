@@ -114,7 +114,8 @@ PanelWindow {
 			// center
 			RowLayout {
 				anchors.centerIn: parent
-				anchors.leftMargin: Theme.barMargin/2 // center of screen instead of bar
+				anchors.leftMargin: statusBar.anchors.rightMargin
+				anchors.rightMargin: statusBar.anchors.leftMargin
 				spacing: Theme.barMargin
 
 				SystemStats.CpuWidget {}

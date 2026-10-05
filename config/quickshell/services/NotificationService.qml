@@ -1,4 +1,18 @@
 // services/NotificationService.qml
+//
+// Wraps NotificationServer. Groups notifications by appName so the UI can
+// render "bubbles" (one card per app, listing each notification's text).
+//
+// Two views over the SAME underlying data:
+//   - popupGroups: only notifications still within their popup window
+//     (not yet timed out/dismissed) — for the floating-toast look.
+//   - allGroups: every tracked notification — for the notification center.
+//
+// A notification is removed from popupGroups (timeout) but stays in
+// allGroups until the user dismisses it or the app itself closes it
+// (both of which set .tracked = false via NotificationServer, which then
+// drops it from trackedNotifications entirely).
+
 pragma Singleton
 
 import QtQuick
@@ -19,7 +33,7 @@ Singleton {
 
 		onNotification: notification => {
 			notification.tracked = true
-			root._popupIds = [ ...root._popupIds, notification.id ]
+			root._popupIds = [...root._popupIds, notification.id]
 			root._popupIdsChanged()
 
 			const timer = popupTimerComponent.createObject(root, { targetId: notification.id })
@@ -29,6 +43,7 @@ Singleton {
 
 	readonly property var allNotifications: server.trackedNotifications
 
+	// ids currently within their popup window
 	property var _popupIds: []
 
 	function _removePopupId(id) {

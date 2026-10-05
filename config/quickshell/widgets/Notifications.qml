@@ -43,18 +43,18 @@ Item {
 
 		Text {
 			anchors.centerIn: parent
-			text: compact.count > 0 ? "󱅫" : "󰂚"
+			text: compact.count > 0? "󱅫": "󰂚"
 			color: Theme.text
 			font.pointSize: Theme.barTextSize + 2
 		}
 
 		Rectangle {
-			visible: compact.count > 0
+			visible: compact.count> 0
 			anchors.top: parent.top
 			anchors.right: parent.right
 			width: 14
 			height: 14
-			radius: 7
+			radius: Theme.barRadius
 			color: Theme.accent
 
 			Text {

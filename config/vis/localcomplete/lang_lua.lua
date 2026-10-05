@@ -18,6 +18,9 @@
 
 local L = {}
 
+local base = (...) and (...):match("^(.*)%.[^.]+$")
+local Scope = require(base and (base .. ".scope") or "scope").Scope
+
 local function set(list)
 	local s = {}
 	for _, v in ipairs(list) do s[v] = true end
@@ -202,10 +205,7 @@ end
 -- owner key = what the root resolves to + the rest of the path.
 --   local  -> "name@id"  (or the decl's own key, e.g. self(Class))
 --   global -> "name"
-local function key_for(decl, root, rest)
-	local base = decl and (decl.key or (root .. "@" .. decl.id)) or root
-	return base .. rest
-end
+local key_for = Scope.key_for
 
 -- ------------------------------------------------------------------
 -- 3. Analysis: one forward pass over the whole document
@@ -225,63 +225,41 @@ function L.analyze(line_toks, cursor)
 	end
 
 	local globals, members = {}, {}
-	local stack = { { kind = "file", decls = {}, depth = 1 } }
-	local next_id = 0
+	local sc = Scope.new()
+	local stack = sc.stack
 	local ds                      -- declaration-list state: what name-introducing list we're inside
 	local fn_pending              -- function scope waiting for its '(' parameter list
 	local until_line              -- a `repeat` body stays visible through its `until` line
 	local snap
 	local decl_func, skip = {}, {}
 
-	local function push_scope(kind, await_do)
-		local f = { kind = kind, decls = {}, await_do = await_do, depth = #stack + 1 }
-		stack[#stack + 1] = f
+	-- bracket frames ("br") only track nesting; every other frame is a block scope
+	local function push_scope(kind, await_do) return sc:push(kind, { await_do = await_do }) end
+	local function top_scope()
+		local _, f = sc:find(function(fr) return fr.kind ~= "br" end)
 		return f
 	end
-	local function top_scope()
-		for k = #stack, 1, -1 do
-			if stack[k].decls then return stack[k] end
-		end
-	end
-	local function lookup(name)
-		for k = #stack, 1, -1 do
-			local d = stack[k].decls and stack[k].decls[name]
-			if d then return d end
-		end
-	end
+	local function lookup(name) return sc:lookup(name) end
 	local function declare(name, role, scope, line, key)
-		next_id = next_id + 1
-		local d = { name = name, id = next_id, role = role, line = line, key = key, depth = scope.depth }
-		scope.decls[name] = d
-		return d
-	end
-	local function pop_to(k)
-		for _ = #stack, k, -1 do stack[#stack] = nil end
+		return sc:declare(name, role, scope, line, key and { key = key } or nil)
 	end
 	local function pop_end()                          -- `end`: close nearest block
-		for k = #stack, 2, -1 do
-			if stack[k].decls then
-				local kind = stack[k].kind
-				pop_to(k)
-				if kind == "branch" and #stack > 1 and stack[#stack].kind == "if" then
-					stack[#stack] = nil
-				end
-				return
+		local k = sc:find(function(fr) return fr.kind ~= "br" end)
+		if k and k >= 2 then
+			local kind = stack[k].kind
+			sc:pop_to(k)
+			if kind == "branch" and #stack > 1 and stack[#stack].kind == "if" then
+				stack[#stack] = nil
 			end
 		end
 	end
 	local function pop_bracket(open)
-		for k = #stack, 2, -1 do
-			if stack[k].kind == "br" and stack[k].ch == open then pop_to(k) return end
-		end
+		local k = sc:find(function(fr) return fr.kind == "br" and fr.ch == open end)
+		if k and k >= 2 then sc:pop_to(k) end
 	end
 	local function pop_repeat()
-		for k = #stack, 2, -1 do
-			if stack[k].decls then
-				if stack[k].kind == "repeat" then pop_to(k) end
-				return
-			end
-		end
+		local k = sc:find(function(fr) return fr.kind ~= "br" end)
+		if k and k >= 2 and stack[k].kind == "repeat" then sc:pop_to(k) end
 	end
 	local function add_member(key, name, call)
 		local m = members[key]
@@ -295,12 +273,7 @@ function L.analyze(line_toks, cursor)
 
 	local function take_snap(ci)
 		if until_line and cursor.line > until_line then pop_repeat() until_line = nil end
-		local vis = {}
-		for k = 1, #stack do
-			local decls = stack[k].decls
-			if decls then for name, d in pairs(decls) do vis[name] = d end end
-		end
-		snap = { ci = ci, visible = vis, declaring = (ds ~= nil and ds.awaiting) or false }
+		snap = { ci = ci, visible = sc:visible(), declaring = (ds ~= nil and ds.awaiting) or false }
 	end
 
 	-- name-introducing lists: `local a, b`, `for k, v`, `function f(a, b)`
@@ -423,7 +396,7 @@ function L.analyze(line_toks, cursor)
 		elseif t.type == "op" then
 			local x = t.text
 			if x == "(" or x == "[" or x == "{" then
-				local frame = { kind = "br", ch = x }
+				local frame = { ch = x }
 				if x == "(" and fn_pending then
 					ds = { kind = "params", awaiting = true, target = fn_pending }
 					fn_pending = nil
@@ -432,7 +405,7 @@ function L.analyze(line_toks, cursor)
 					local root, rest = owner_path(flat, i - 1)     -- `name = {` : fields belong to name
 					if root then frame.owner = owner_key(root, rest) end
 				end
-				stack[#stack + 1] = frame
+				sc:push("br", frame)
 			elseif x == ")" then pop_bracket("(")
 			elseif x == "]" then pop_bracket("[")
 			elseif x == "}" then pop_bracket("{")

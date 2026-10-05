@@ -5,6 +5,25 @@ import QtQuick
 import "../services"
 
 QtObject {
+	function absoluteX(item, root) {
+		let x = 0
+		let current = item
+		while (current !== root) {
+			x += current.x
+			current = current.parent
+		}
+		return x
+	}
+	function absoluteY(item, root) {
+		let y = 0
+		let current = item
+		while (current !== root) {
+			y += current.y
+			current = current.parent
+		}
+		return y
+	}
+
 	property color barColor: Theme.base
 	property real barOpacity: barHovered? Theme.barOpacityFocused: Theme.barOpacityFocused * Theme.barOpacityUnfocused
 
@@ -31,29 +50,16 @@ QtObject {
 		taskBarVisible = false
 	}
 
+	property bool notificationCenterVisible: false
+	function expandNotificationCenter() {
+		notificationCenterVisible = true
+	}
+
 	function updateWidgetsVisible() {
 		if (!barHovered) {
 			taskBarVisible = false
 			mprisWidgetVisible = false
+			notificationCenterVisible = false
 		}
-	}
-
-	function absoluteX(item, root) {
-		let x = 0
-		let current = item
-		while (current !== root) {
-			x += current.x
-			current = current.parent
-		}
-		return x
-	}
-	function absoluteY(item, root) {
-		let y = 0
-		let current = item
-		while (current !== root) {
-			y += current.y
-			current = current.parent
-		}
-		return y
 	}
 }

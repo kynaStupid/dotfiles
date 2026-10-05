@@ -83,24 +83,24 @@ local function move_lines(dir)
 	local a, b = pos, pos
 	local r = sel.range
 	if visual and r then
-		a, b = r.start, math.max(r.start, r.finish - 1)
+		a, b = r.start, math.max(r.start, r.finish-1)
 	end
 
 	local bs = line_start(file, a)
 	local be = line_end(file, b)
-	if be < size then be = be + 1 end
+	if be < size then be = be+1 end
 	local block = file:content(bs, be - bs)
 	local from, to, new, shift
 
 	if dir < 0 then
 		if bs == 0 then return end
-		local ps = line_start(file, bs - 1)
+		local ps = line_start(file, bs-1)
 		local prev = file:content(ps, bs - ps)
 		from, to = ps, be
 		if block:sub(-1) == "\n" then
-			new = block .. prev
+			new = block..prev
 		else
-			new = block .. "\n" .. prev:sub(1, -2)
+			new = block.."\n"..prev:sub(1,-2)
 		end
 		shift = -#prev
 	else
@@ -113,8 +113,8 @@ local function move_lines(dir)
 			new = nxt .. block
 			shift = #nxt
 		else
-			new = nxt .. "\n" .. block:sub(1, -2)
-			shift = #nxt + 1
+			new = nxt .. "\n" .. block:sub(1,-2)
+			shift = #nxt+1
 		end
 	end
 
@@ -154,13 +154,13 @@ local function surround_word(d)
 	local pos = sel.pos
 	local ls, le = line_start(file, pos), line_end(file, pos)
 	local text = file:content(ls, le - ls)
-	local i = pos - ls + 1
+	local i = pos+1 - ls
 	if not text:sub(i, i):match("[%w_]") then return end
 	local s, e = i, i
-	while s > 1 and text:sub(s - 1, s - 1):match("[%w_]") do s = s - 1 end
-	while e < #text and text:sub(e + 1, e + 1):match("[%w_]") do e = e + 1 end
-	wrap(file, ls + s - 1, ls + e, d)
-	sel.pos = pos + 1
+	while s > 1 and text:sub(s-1, s-1):match("[%w_]") do s = s-1 end
+	while e < #text and text:sub(e+1, e+1):match("[%w_]") do e = e+1 end
+	wrap(file, ls-1 + s, ls + e, d)
+	sel.pos = pos+1
 end
 
 local function surround_line(d)
@@ -173,7 +173,7 @@ local function surround_line(d)
 	local trail = #text:match("%s*$")
 	if lead >= #text then return end
 	wrap(file, ls + lead, le - trail, d)
-	sel.pos = pos + 1
+	sel.pos = pos+1
 end
 
 local function surround_selection(d)
@@ -182,7 +182,7 @@ local function surround_selection(d)
 	local r = sel.range
 	if not r then return end
 	local s, e = r.start, r.finish
-	if e > s and file:content(e - 1, 1) == "\n" then e = e - 1 end
+	if e > s and file:content(e-1,1) == "\n" then e = e-1 end
 	wrap(file, s, e, d)
 	vis.mode = NORMAL
 	sel.pos = s
@@ -193,20 +193,20 @@ local function find_pair(file, pos, d)
 	local lo = math.max(0, pos - 50000)
 	local hi = math.min(file.size, pos + 50000)
 	local text = file:content(lo, hi - lo)
-	local i = pos - lo + 1
+	local i = pos+1 - lo
 
 	if open == close then
-		local ls = line_start(file, pos) - lo + 1
+		local ls = line_start(file, pos)+1 - lo
 		local le = line_end(file, pos) - lo
 		local marks = {}
-		for k = math.max(ls, 1), math.min(le, #text) do
-			if text:sub(k, k) == open and text:sub(k - 1, k - 1) ~= "\\" then
-				marks[#marks + 1] = k
+		for k = math.max(ls,1), math.min(le, #text) do
+			if text:sub(k, k) == open and text:sub(k-1, k-1) ~= "\\" then
+				marks[#marks+1] = k
 			end
 		end
-		for k = 1, #marks - 1, 2 do
-			if marks[k] <= i and i <= marks[k + 1] then
-				return lo + marks[k] - 1, lo + marks[k + 1] - 1
+		for k = 1, #marks-1, 2 do
+			if marks[k] <= i and i <= marks[k+1] then
+				return lo + marks[k]-1, lo + marks[k+1]-1
 			end
 		end
 		return
@@ -214,24 +214,24 @@ local function find_pair(file, pos, d)
 
 	local depth, s = 0, nil
 	local j = i
-	if text:sub(i, i) == close then j = i - 1 end
+	if text:sub(i, i) == close then j = i-1 end
 	while j >= 1 do
 		local c = text:sub(j, j)
-		if c == close then depth = depth + 1
+		if c == close then depth = depth+1
 		elseif c == open then
 			if depth == 0 then s = j break end
-			depth = depth - 1
+			depth = depth-1
 		end
-		j = j - 1
+		j = j-1
 	end
 	if not s then return end
 	depth = 0
-	for k = s + 1, #text do
+	for k = s+1, #text do
 		local c = text:sub(k, k)
-		if c == open then depth = depth + 1
+		if c == open then depth = depth+1
 		elseif c == close then
-			if depth == 0 then return lo + s - 1, lo + k - 1 end
-			depth = depth - 1
+			if depth == 0 then return lo-1 + s, lo-1 + k end
+			depth = depth-1
 		end
 	end
 end
@@ -242,11 +242,11 @@ local function delete_surround(d)
 	local pos = sel.pos
 	local s, e = find_pair(file, pos, d)
 	if not s then return end
-	file:delete(e, 1)
-	file:delete(s, 1)
+	file:delete(e,1)
+	file:delete(s,1)
 	local np = pos
-	if pos > s then np = np - 1 end
-	if pos > e then np = np - 1 end
+	if pos > s then np = np-1 end
+	if pos > e then np = np-1 end
 	sel.pos = np
 end
 
@@ -256,9 +256,9 @@ local function change_surround(from, to)
 	local pos = sel.pos
 	local s, e = find_pair(file, pos, from)
 	if not s then return end
-	file:delete(e, 1)
+	file:delete(e,1)
 	file:insert(e, to[2])
-	file:delete(s, 1)
+	file:delete(s,1)
 	file:insert(s, to[1])
 	sel.pos = pos
 end
@@ -300,7 +300,7 @@ end
 
 local function edit(path, line)
 	vis:command("e "..sq(path))
-	if line then vis.win.selection:to(line, 1) end
+	if line then vis.win.selection:to(line,1) end
 end
 
 local files_cmd = "(fd --type f --hidden --exclude .git 2>/dev/null || find . -type f -not -path '*/.git/*' | sed 's|^\\./||')"
@@ -313,8 +313,8 @@ end
 local function live_grep()
 	local rg = "rg --line-number --no-heading --color=never --smart-case -e {q} . 2>/dev/null"
 	local gr = "grep -rIn -e {q} . 2>/dev/null"
-	local reload = "[ -n {q} ] && (" .. rg .. " || " .. gr .. ") || true"
-	local out = fzf(":", "--disabled --delimiter : --prompt 'grep> ' --bind " .. sq("change:reload:"..reload))
+	local reload = "[ -n {q} ] && ("..rg.." || "..gr..") || true"
+	local out = fzf(":", "--disabled --delimiter : --prompt 'grep> ' --bind "..sq("change:reload:"..reload))
 	if not out then return end
 	local path, line = out:match("^(.-):(%d+):")
 	if path then edit(path, tonumber(line)) end
@@ -338,7 +338,7 @@ end
 
 -- recent files are stored most-recent-last in a plain text file
 local data_home = os.getenv("XDG_DATA_HOME") or ((os.getenv("HOME") or "").."/.local/share")
-local recent_path = data_home .. "/vis/recent"
+local recent_path = data_home.."/vis/recent"
 
 local function remember(path)
 	if not path then return end
@@ -352,14 +352,14 @@ local function pick_recent()
 	if not f then vis:info("no recent files yet") return end
 	local list, seen = {}, {}
 	local all = {}
-	for l in f:lines() do all[#all + 1] = l end
+	for l in f:lines() do all[#all+1] = l end
 	f:close()
 	for i = #all, 1, -1 do
 		local p = all[i]
 		if not seen[p] then
 			seen[p] = true
 			local t = io.open(p, "r")
-			if t then t:close() list[#list + 1] = p end
+			if t then t:close() list[#list+1] = p end
 			if #list >= 200 then break end
 		end
 	end
@@ -378,6 +378,9 @@ vis:map(NORMAL, leader..'fg', live_grep,      "fzf live grep")
 vis:map(NORMAL, leader..'fb', pick_buffer,    "fzf buffers")
 vis:map(NORMAL, leader..'fh', ":help<Enter>", "help")
 vis:map(NORMAL, leader..'fr', pick_recent,    "fzf recent files")
+
+-- Statusline
+local statusline = require("statusline")
 
 -- Completion
 local localcomplete = require("localcomplete")
