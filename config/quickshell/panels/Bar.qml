@@ -24,9 +24,10 @@ PanelWindow {
 	color: "transparent"
 
 	mask: Region {
-		item: statusBar
+		Region { item: statusBar }
 		Region { item: taskBar }
 		Region { item: mprisExpanded }
+		Region { item: notificationCenter }
 	}
 
 	Item {
@@ -42,6 +43,7 @@ PanelWindow {
 				.concat(statusBar.borderGeometry)
 				.concat(taskBar.borderGeometry)
 				.concat(mprisExpanded.borderGeometry)
+				.concat(notificationCenter.borderGeometry)
 		}
 
 		Rectangle {
@@ -54,7 +56,9 @@ PanelWindow {
 
 			height: Theme.barHeight
 			topRightRadius: Theme.barRadius - Theme.borderWidth
-			bottomRightRadius: Theme.barRadius - Theme.borderWidth
+			bottomRightRadius: notificationCenter.visible?
+				0:
+				Theme.barRadius - Theme.borderWidth
 			Behavior on bottomRightRadius { NumberAnimation { duration: Theme.animMorphDuration } }
 
 			color: Globals.barColor
@@ -135,6 +139,19 @@ PanelWindow {
 				Status.BatteryWidget {}
 				Status.NetworkWidget {}
 				Status.VolumeWidget {}
+
+				Notifications.Compact {
+					MouseArea {
+						id: notificationHotspot
+						anchors.horizontalCenter: parent.horizontalCenter
+						anchors.verticalCenter: parent.verticalCenter
+						width: Theme.barHeight
+						height: Theme.barHeight
+						hoverEnabled: parent.visible
+						preventStealing: false
+						onEntered: Globals.expandNotificationCenter()
+					}
+				}
 			}
 		}
 
@@ -454,6 +471,42 @@ PanelWindow {
 				onEntered: Globals.barEnter()
 				onExited: Globals.barExit()
 			}
+		}
+
+		Notifications.Expanded {
+			id: notificationCenter
+			visible: height > 0
+			anchors.top: statusBar.bottom
+			anchors.right: statusBar.right
+
+			bottomLeftRadius: Theme.barRadius - Theme.borderWidth
+			bottomRightRadius: Theme.barRadius - Theme.borderWidth
+
+			readonly property var borderGeometry: [
+				{ type: "rectangle", item: notificationCenter },
+				{ type: "invertedCorner", item: notificationCenterInvertedCornerLeft }
+			]
+
+			HoverHandler {
+				onHoveredChanged: {
+					if (hovered)
+						Globals.barEnter()
+					else
+						Globals.barExit()
+				}
+			}
+		}
+		InvertedCorner {
+			id: notificationCenterInvertedCornerLeft
+			anchors.right: notificationCenter.left
+			anchors.top: statusBar.bottom
+
+			opacity: Globals.barOpacity
+			Behavior on opacity { NumberAnimation { duration: Theme.animFocusDuration } }
+
+			radius: Math.min(Theme.barRadius - Theme.borderWidth, notificationCenter.height - Theme.barRadius)
+			color: Globals.barColor
+			corner: Qt.BottomLeftCorner
 		}
 	}
 }

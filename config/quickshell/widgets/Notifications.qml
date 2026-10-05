@@ -26,7 +26,6 @@
 import QtQuick
 import QtQuick.Layouts
 import "../services"
-import "../singletons"
 
 Item {
 	id: root
@@ -45,11 +44,11 @@ Item {
 			anchors.centerIn: parent
 			text: compact.count > 0? "󱅫": "󰂚"
 			color: Theme.text
-			font.pointSize: Theme.barTextSize + 2
+			font.pointSize: Theme.barTextSize
 		}
 
-		Rectangle {
-			visible: compact.count> 0
+		/*Rectangle {
+			visible: compact.count > 0
 			anchors.top: parent.top
 			anchors.right: parent.right
 			width: 14
@@ -59,12 +58,12 @@ Item {
 
 			Text {
 				anchors.centerIn: parent
-				text: compact.count > 9 ? "9+" : compact.count
+				text: compact.count > 9? "9+": compact.count
 				color: Theme.base
 				font.pointSize: Theme.barTextSize - 4
 				font.bold: true
 			}
-		}
+		}*/
 	}
 
 	// A single notification row within a group bubble.
@@ -73,7 +72,7 @@ Item {
 		required property var notification
 
 		implicitHeight: rowText.implicitHeight + Theme.barMargin
-		width: parent ? parent.width : 0
+		width: parent? parent.width: 0
 
 		property real dragX: 0
 		readonly property real dismissThreshold: width * 0.35
@@ -219,9 +218,9 @@ Item {
 		readonly property real padding: Theme.barMargin
 		readonly property bool centerMode: Globals.notificationCenterVisible
 
-		readonly property var groups: centerMode
-			? NotificationService.allGroups
-			: NotificationService.popupGroups
+		readonly property var groups: centerMode?
+			NotificationService.allGroups:
+			NotificationService.popupGroups
 
 		readonly property var filteredGroups: {
 			if (!centerMode || realSearchInput.text === "")
@@ -239,9 +238,9 @@ Item {
 		}
 
 		implicitWidth: 320
-		height: (Globals.notificationCenterVisible || groups.length > 0)
-			? Math.min(maxHeight, column.implicitHeight + padding * 2)
-			: 0
+		height: (Globals.notificationCenterVisible || groups.length > 0)?
+			Math.min(maxHeight, column.implicitHeight + padding * 2):
+			0
 
 		Behavior on height { NumberAnimation { duration: Theme.animMorphDuration; easing.type: Easing.OutCubic } }
 

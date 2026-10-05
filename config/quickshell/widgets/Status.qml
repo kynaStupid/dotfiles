@@ -21,7 +21,7 @@ Item {
 			anchors.fill: parent
 			cursorShape: Qt.PointingHandCursor
 			acceptedButtons: Qt.LeftButton
-			//onClicked: Network.toggleWifi()
+			onClicked: Network.toggleWifi()
 		}
 	}
 
