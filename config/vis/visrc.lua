@@ -390,6 +390,9 @@ vis.events.subscribe(vis.events.FILE_SAVE_POST, function(file) remember(file.pat
 
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
 	vis:command("set autoindent")
+	vis:command("set ignorecase")
+	vis:command("set layout vertical")
+	vis:command("set savemethod auto")
 	vis:command("set tabwidth 2")
 
 	vis:command("set relativenumbers")
