@@ -31,6 +31,12 @@ let
 			opacity = { default = 1; unfocused = 0.7; shell = 0.8; };
 			icons = { name = "Papirus-Dark"; packages = with pkgs; [ papirus-icon-theme ]; };
 		})
+		(mkCatppuccinTheme {
+			variant = "latte";
+			accent = { name = "red"; color = { hex = "d20f39"; }; };
+			opacity = { default = 1; unfocused = 0.7; shell = 0.7; };
+			icons = { name = "Papirus-Dark"; packages = with pkgs; [ papirus-icon-theme ]; };
+		})
 	];
 in {
 	_module.args.themes = themes;

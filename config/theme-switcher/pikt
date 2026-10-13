@@ -97,9 +97,6 @@ sed -i "s/^theme=.*/theme=$qt_name/" "$HOME/.config/Kvantum/kvantum.kvconfig"
 
 if [ -f "$dir/mango-theme.conf" ]; then
 	ln -sfn "$dir/mango-theme.conf" "$ACTIVE_DIR/mango-theme.conf"
-	if command -v mmsg >/dev/null 2>&1; then
-		mmsg dispatch reload_config >/dev/null || echo "warn: mango reload failed" >&2
-	fi
 fi
 
 # quickshell

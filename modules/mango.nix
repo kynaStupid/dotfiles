@@ -7,22 +7,22 @@ let
 	mkMangoConf = theme: pkgs.writeText "mango-theme-${theme.id}.conf" ''
 focused_opacity=${toString theme.opacity.default}
 unfocused_opacity=${toString theme.opacity.unfocused}
-gappih=${toString theme.spacing}
-gappiv=${toString theme.spacing}
-gappoh=${toString theme.margin}
-gappov=${toString theme.margin}
-borderpx=${toString theme.border.width}
+gap_inner_horizontal=${toString theme.spacing}
+gap_inner_vertical=${toString theme.spacing}
+gap_outer_horizontal=${toString theme.margin}
+gap_outer_vertical=${toString theme.margin}
+border_px=${toString theme.border.width}
 border_radius=${toString theme.border.radius}
-rootcolor=${argb theme.colors.crust.hex "ff"}
-bordercolor=${argb theme.colors.surface0.hex "ff"}
-focuscolor=${argb theme.colors.${theme.accent}.hex "ff"}
-dropcolor=${argb theme.colors.pink.hex "55"}
-splitcolor=${argb theme.colors.yellow.hex "ff"}
-maximizescreencolor=${argb theme.colors.yellow.hex "ff"}
-urgentcolor=${argb theme.colors.red.hex "ff"}
-scratchpadcolor=${argb theme.colors.${theme.accent}.hex "ff"}
-globalcolor=${argb theme.colors.${theme.accent}.hex "ff"}
-overlaycolor=${argb theme.colors.pink.hex "ff"}
+root_color=${argb theme.colors.crust.hex "ff"}
+border_color=${argb theme.colors.surface0.hex "ff"}
+focus_color=${argb theme.colors.${theme.accent}.hex "ff"}
+drop_color=${argb theme.colors.pink.hex "55"}
+split_color=${argb theme.colors.yellow.hex "ff"}
+urgent_color=${argb theme.colors.red.hex "ff"}
+maximized_screen_color=${argb theme.colors.yellow.hex "ff"}
+scratchpad_color=${argb theme.colors.${theme.accent}.hex "ff"}
+global_color=${argb theme.colors.${theme.accent}.hex "ff"}
+overlay_color=${argb theme.colors.pink.hex "ff"}
 animation_duration_open=${toString theme.animations.morph.duration}
 animation_duration_close=${toString theme.animations.morph.duration}
 animation_duration_focus=${toString theme.animations.focus.duration}
@@ -31,15 +31,7 @@ animation_duration_tag=${toString theme.animations.move.duration}
 cursor_theme=${theme.cursor.name}
 cursor_size=${toString theme.cursor.size}
 
-overviewgappi=${toString theme.margin}
-overviewgappo=${toString theme.margin}
-
 scroller_structs=${toString (theme.margin + theme.border.width*2 + 2)}
-
-special_gappih=${toString theme.spacing}
-special_gappiv=${toString theme.spacing}
-special_gappoh=${toString theme.margin}
-special_gappov=${toString theme.margin}
 '';
 
 	themeFileEntries = lib.listToAttrs (map (theme: {

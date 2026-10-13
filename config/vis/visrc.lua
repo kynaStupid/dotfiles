@@ -58,9 +58,6 @@ vis:map(OPEND,  'k', "<vis-operator-delete>", "delete line")
 vis:map(VISUAL, 'k', "<vis-operator-delete>", "delete")
 vis:map(VLINE,  'k', "<vis-operator-delete>", "delete")
 
---y = copy
---p = paste
-
 vis:map(NORMAL, '<Up>', '<C-w>k') -- nav up window
 vis:map(NORMAL, '<Left>', '<C-w>h') -- nav left window
 vis:map(NORMAL, '<Down>', '<C-w>j') -- nav down window
@@ -391,7 +388,7 @@ vis.events.subscribe(vis.events.FILE_SAVE_POST, function(file) remember(file.pat
 vis.events.subscribe(vis.events.WIN_OPEN, function(win)
 	vis:command("set autoindent")
 	vis:command("set ignorecase")
-	vis:command("set layout vertical")
+	vis:command("set layout v")
 	vis:command("set savemethod auto")
 	vis:command("set tabwidth 2")
 
